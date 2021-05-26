@@ -1,0 +1,15 @@
+node_modules
+package-lock.json
+
+.env
+
+.vscode
+
+.DS_Store
+
+build
+dist
+dist-ssr
+
+*.local
+.pytest_cache
