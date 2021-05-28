@@ -1,11 +1,13 @@
 import express, { RequestHandler } from 'express';
-import AuthController from './service/AuthController';
-import Controller from './service/controller';
-import Server from './service/Server';
 
-const PORT = 3001;
+import config from './config';
+
+import AuthController from './Network/AuthController';
+import Controller from './Network/controller';
+import Server from './Network/Server';
+
 const app = express();
-const server = new Server(app, PORT);
+const server = new Server(app, config.PORT);
 
 const controllers: Array<Controller> = [new AuthController()];
 

@@ -66,6 +66,7 @@
 2. Members will receive notification when one of their timers are done.
 3. Members will receive notifications when they receive a message in a chat.
 4. Members will receive notification when they receive points or coupons rom their partner.
+5. Members will receive notification when a partner sets one of their goal as completed.
 
 ### 8. Settings
 
