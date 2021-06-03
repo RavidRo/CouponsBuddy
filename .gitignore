@@ -13,3 +13,4 @@ dist-ssr
 
 *.local
 .pytest_cache
+love-coupons-firebase-adminsdk.json
