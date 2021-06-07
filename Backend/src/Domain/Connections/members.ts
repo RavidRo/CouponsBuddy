@@ -1,4 +1,4 @@
-import ResponseMsg, { ParsableArrResponse } from '../../response';
+import { ResponseMsg, makeFail, makeGood, makeGoodArrPa, makeGoodArrPr } from '../../response';
 import InvitationData from '../../Service/DataObjects/invitation-data';
 import PartnerData from '../../Service/DataObjects/partner-data';
 import Singleton from '../../singleton';
@@ -6,27 +6,48 @@ import Invitation from './invitation';
 
 import Member from './member';
 
+const validateUID = (checkSecond = false) => {
+	return (_: unknown, _propertyKey: string, descriptor: PropertyDescriptor) => {
+		const originalMethod = descriptor.value;
+
+		descriptor.value = function (uid: string, ...args: never[]) {
+			if (
+				!(this as Members).members[uid] ||
+				(checkSecond && !(this as Members).members[args[0]])
+			) {
+				return makeFail('User with the given uid does not exist');
+			}
+			return originalMethod.apply(this, [uid, ...args]);
+		};
+
+		return descriptor;
+	};
+};
+
 export default class Members extends Singleton {
-	private members: { [uid: string]: Member } = {};
+	private _members: { [uid: string]: Member } = {};
 
 	static getInstance(): Members {
 		return this.getInstanceGen(() => new Members());
 	}
 
-	register(uid: string, nickname: string): ResponseMsg<never> {
-		if (this.members[uid]) {
-			return ResponseMsg.makeError('User with the given uid already exists');
-		}
-		this.members[uid] = new Member(uid, nickname);
-		return ResponseMsg.makeSuccess();
+	get members(): { [uid: string]: Member } {
+		return this._members;
 	}
 
-	invite(fromUID: string, toUID: string): ResponseMsg<never> {
-		const userTo = this.members[toUID];
-		const userFrom = this.members[fromUID];
-		if (!userTo || !userFrom) {
-			return ResponseMsg.makeError('Users with the given uid does not exist');
+	register(uid: string, nickname: string): ResponseMsg<null> {
+		if (this._members[uid]) {
+			return makeFail('User with the given uid already exists');
 		}
+		this._members[uid] = new Member(uid, nickname);
+		return makeGood();
+	}
+
+	@validateUID(true)
+	invite(fromUID: string, toUID: string): ResponseMsg<null> {
+		const userTo = this._members[toUID];
+		const userFrom = this._members[fromUID];
+
 		// Accept the current invitation if there is one already
 		if (userFrom.hasInvitation(toUID)) {
 			return userFrom.acceptInvitation(toUID);
@@ -34,30 +55,23 @@ export default class Members extends Singleton {
 		return userTo.invite(userFrom);
 	}
 
-	acceptInvitation(uid: string, inviterUID: string): ResponseMsg<never> {
-		if (!this.members[uid]) {
-			return ResponseMsg.makeError('User with the given uid does not exist');
-		}
-		return this.members[uid].acceptInvitation(inviterUID);
+	@validateUID()
+	acceptInvitation(uid: string, inviterUID: string): ResponseMsg<null> {
+		return this._members[uid].acceptInvitation(inviterUID);
 	}
 
-	getInvitations(uid: string): ParsableArrResponse<InvitationData, Invitation> {
-		if (!this.members[uid]) {
-			return ParsableArrResponse.makeParsArrError('User with the given uid does not exist');
-		}
-		return ParsableArrResponse.makeParsArrSuccess(this.members[uid].invitations);
+	@validateUID()
+	getInvitations(uid: string): ResponseMsg<Invitation[], InvitationData[]> {
+		return makeGoodArrPa(this._members[uid].invitations);
 	}
 
+	@validateUID()
 	getPartners(uid: string): ResponseMsg<PartnerData[]> {
-		if (!this.members[uid]) {
-			return ResponseMsg.makeError('User with the given uid does not exist');
-		}
-		return ResponseMsg.makeSuccess(this.members[uid].getPartners());
+		return makeGoodArrPr(this._members[uid].getPartners());
 	}
-	rejectInvitation(uid: string, toRejectUID: string): ResponseMsg<never> {
-		if (!this.members[uid]) {
-			return ResponseMsg.makeError('User with the given uid does not exist');
-		}
-		return this.members[uid].rejectInvitation(toRejectUID);
+
+	@validateUID()
+	rejectInvitation(uid: string, toRejectUID: string): ResponseMsg<null> {
+		return this._members[uid].rejectInvitation(toRejectUID);
 	}
 }

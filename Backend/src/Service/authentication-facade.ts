@@ -1,5 +1,5 @@
 import Members from '../Domain/Connections/members';
-import ResponseMsg from '../response';
+import { ResponseMsg } from '../response';
 import Singleton from '../singleton';
 
 export default class AuthenticationFacade extends Singleton {
@@ -14,7 +14,7 @@ export default class AuthenticationFacade extends Singleton {
 		return this.getInstanceGen(() => new AuthenticationFacade());
 	}
 
-	register(uid: string, nickname: string): ResponseMsg<never> {
+	register(uid: string, nickname: string): ResponseMsg<null> {
 		return this.members.register(uid, nickname);
 	}
 }

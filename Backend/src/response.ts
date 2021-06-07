@@ -1,70 +1,104 @@
-export default class ResponseMsg<T> {
-	protected _data?: T;
-	protected _errorMsg?: string;
-	protected _success: boolean;
+export interface Parsable<T, U> {
+	parse(): U;
+	getData(): T;
+}
 
-	constructor(success: true, data?: T);
-	constructor(success: boolean, data?: T, errorMsg?: string);
-	constructor(success: boolean, data?: T, errorMsg?: string) {
-		this._success = success;
+class PrimitiveParsable<T> implements Parsable<T, T> {
+	private _data: T;
+
+	constructor(data: T) {
 		this._data = data;
-		this._errorMsg = errorMsg;
 	}
-
-	static makeError<T>(errorMsg: string): ResponseMsg<T> {
-		return new ResponseMsg<T>(false, undefined, errorMsg);
-	}
-	static makeSuccess<T>(data?: T): ResponseMsg<T> {
-		return new ResponseMsg<T>(true, data);
-	}
-
-	get success(): boolean {
-		return this._success;
-	}
-	get data(): T | undefined {
+	parse(): T {
 		return this._data;
 	}
-	get errorMsg(): string {
-		return this._success ? 'Success!' : this._errorMsg || '';
+	getData(): T {
+		return this._data;
 	}
 }
 
-export interface Parsable<U> {
-	parse(): U;
+class ArrParsable<T extends Parsable<V, U>, U, V> implements Parsable<V[], U[]> {
+	private _data: T[];
+
+	constructor(data: T[]) {
+		this._data = data;
+	}
+	parse(): U[] {
+		return this._data.map((curr) => curr.parse());
+	}
+	getData(): V[] {
+		return this._data.map((curr) => curr.getData());
+	}
 }
 
-export class ParsableResponse<U, T extends Parsable<U>> extends ResponseMsg<T> {
-	static makeParsError<U, T extends Parsable<U>>(errorMsg: string): ParsableResponse<U, T> {
-		return new ParsableResponse<U, T>(false, undefined, errorMsg);
+export interface ResponseMsg<T, U = T> extends Parsable<T, ResponseMsg<U>> {
+	isSuccess(): boolean;
+	getError(): string;
+	getData(): T;
+}
+
+class ResponseSuccess<T extends Parsable<V, U>, U, V> implements ResponseMsg<V, U> {
+	private _data: T;
+
+	constructor(data: T) {
+		this._data = data;
 	}
-	static makeParsSuccess<U, T extends Parsable<U>>(data?: T): ParsableResponse<U, T> {
-		return new ParsableResponse<U, T>(true, data);
+
+	isSuccess(): boolean {
+		return true;
+	}
+
+	getError(): string {
+		return 'No error';
+	}
+	getData(): V {
+		return this._data.getData();
 	}
 
 	parse(): ResponseMsg<U> {
-		if (!this.success) {
-			return ResponseMsg.makeError(this.errorMsg);
-		}
-		return new ResponseMsg(this.success, this.data?.parse(), this.errorMsg);
+		const parsable = new PrimitiveParsable(this._data.parse());
+		const response = new ResponseSuccess<PrimitiveParsable<U>, U, U>(parsable);
+		return response;
 	}
 }
 
-export class ParsableArrResponse<U, T extends Parsable<U>> extends ResponseMsg<T[]> {
-	static makeParsArrError<U, T extends Parsable<U>>(errorMsg: string): ParsableArrResponse<U, T> {
-		return new ParsableArrResponse<U, T>(false, undefined, errorMsg);
-	}
-	static makeParsArrSuccess<U, T extends Parsable<U>>(data?: T[]): ParsableArrResponse<U, T> {
-		return new ParsableArrResponse<U, T>(true, data);
+class ResponseFail<T> implements ResponseMsg<T> {
+	private _error: string;
+
+	constructor(error: string) {
+		this._error = error;
 	}
 
-	parse(): ResponseMsg<U[]> {
-		if (!this.success) {
-			return ResponseMsg.makeError(this.errorMsg);
-		}
-		return new ResponseMsg(
-			this._success,
-			this.data?.map((value) => value.parse()),
-			this._errorMsg
-		);
+	isSuccess(): boolean {
+		return false;
+	}
+	getError(): string {
+		return this._error;
+	}
+	getData(): T {
+		throw new Error('Failed response does not have data');
+	}
+	parse(): ResponseFail<T> {
+		return this;
 	}
 }
+export const makeGood = (): ResponseMsg<null> => {
+	return new ResponseSuccess(new PrimitiveParsable(null));
+};
+export const makeGoodPr = <T>(data: T): ResponseMsg<T> => {
+	return new ResponseSuccess(new PrimitiveParsable(data));
+};
+export const makeGoodPa = <T, U>(data: Parsable<T, U>): ResponseMsg<T, U> => {
+	return new ResponseSuccess(data);
+};
+export const makeGoodArrPa = <T, U>(data: Parsable<T, U>[]): ResponseMsg<T[], U[]> => {
+	return new ResponseSuccess(new ArrParsable<Parsable<T, U>, U, T>(data));
+};
+export const makeGoodArrPr = <T>(data: T[]): ResponseMsg<T[]> => {
+	return new ResponseSuccess(
+		new ArrParsable<Parsable<T, T>, T, T>(data.map((curr) => new PrimitiveParsable(curr)))
+	);
+};
+export const makeFail = <T>(error: string): ResponseMsg<T> => {
+	return new ResponseFail(error);
+};

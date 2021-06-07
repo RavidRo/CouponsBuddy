@@ -1,4 +1,4 @@
-import ResponseMsg from '../../response';
+import { makeFail, makeGood, ResponseMsg } from '../../response';
 import PartnerData from '../../Service/DataObjects/partner-data';
 import ConnectionSettings from './connection-settings';
 import Invitation from './invitation';
@@ -27,20 +27,20 @@ export default class Member {
 		return Object.values(this._invitations);
 	}
 
-	invite(sender: Member): ResponseMsg<never> {
+	invite(sender: Member): ResponseMsg<null> {
 		if (this.connections[sender.uid]) {
-			return ResponseMsg.makeError('You are already partners');
+			return makeFail('You are already partners');
 		}
 		if (!this._invitations[sender.uid]) {
 			const invitation = new Invitation(this._uid, sender);
 			this._invitations[sender.uid] = invitation;
 		}
-		return ResponseMsg.makeSuccess();
+		return makeGood();
 	}
 
-	acceptInvitation(inviterUID: string): ResponseMsg<never> {
+	acceptInvitation(inviterUID: string): ResponseMsg<null> {
 		if (!this._invitations[inviterUID]) {
-			return ResponseMsg.makeError('Has no invitation from the given user');
+			return makeFail('Has no invitation from the given user');
 		}
 
 		const mySettings = this._invitations[inviterUID].accept(this.nickname);
@@ -63,9 +63,9 @@ export default class Member {
 		return partners;
 	}
 
-	rejectInvitation(toRejectUID: string): ResponseMsg<never> {
+	rejectInvitation(toRejectUID: string): ResponseMsg<null> {
 		if (!this._invitations[toRejectUID]) {
-			return ResponseMsg.makeError('Has no invitation from the given user');
+			return makeFail('Has no invitation from the given user');
 		}
 
 		return this.removeInvitation(toRejectUID);
@@ -75,8 +75,8 @@ export default class Member {
 		return this._invitations[fromUID] !== undefined;
 	}
 
-	private removeInvitation(uid: string): ResponseMsg<never> {
+	private removeInvitation(uid: string): ResponseMsg<null> {
 		delete this._invitations[uid];
-		return ResponseMsg.makeSuccess();
+		return makeGood();
 	}
 }
