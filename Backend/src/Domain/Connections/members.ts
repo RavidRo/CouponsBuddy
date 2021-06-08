@@ -1,4 +1,5 @@
 import { ResponseMsg, makeFail, makeGood, makeGoodArrPa, makeGoodArrPr } from '../../response';
+import CouponData from '../../Service/DataObjects/coupon-data';
 import InvitationData from '../../Service/DataObjects/invitation-data';
 import PartnerData from '../../Service/DataObjects/partner-data';
 import Singleton from '../../singleton';
@@ -60,6 +61,15 @@ export default class Members extends Singleton {
 		return this._members[uid].acceptInvitation(inviterUID);
 	}
 
+	@validateUID(true)
+	leavePartner(uid: string, partnerUID: string): ResponseMsg<null> {
+		const response = this._members[uid].leavePartner(partnerUID);
+		if (!response.isSuccess()) {
+			return response;
+		}
+		return this._members[partnerUID].leavePartner(uid);
+	}
+
 	@validateUID()
 	getInvitations(uid: string): ResponseMsg<Invitation[], InvitationData[]> {
 		return makeGoodArrPa(this._members[uid].invitations);
@@ -73,5 +83,20 @@ export default class Members extends Singleton {
 	@validateUID()
 	rejectInvitation(uid: string, toRejectUID: string): ResponseMsg<null> {
 		return this._members[uid].rejectInvitation(toRejectUID);
+	}
+
+	@validateUID()
+	createCoupon(uid: string, partnerUID: string, content: string): ResponseMsg<string> {
+		return this._members[uid].createCoupon(partnerUID, content);
+	}
+
+	@validateUID()
+	getPartnersBank(uid: string, partnerUID: string): ResponseMsg<CouponData[]> {
+		return this._members[uid].getPartnersBank(partnerUID).parse();
+	}
+
+	@validateUID()
+	removeCoupon(uid: string, partnerUID: string, couponId: string): ResponseMsg<null> {
+		return this._members[uid].removeCoupon(partnerUID, couponId);
 	}
 }

@@ -11,8 +11,8 @@ const register = (() => {
 	return () => {
 		const member = (uid++).toString();
 		const response = authentication.register(member, member);
-		if (!response.success) {
-			throw new Error(response.errorMsg);
+		if (!response.isSuccess()) {
+			throw new Error(response.getError());
 		}
 		return member;
 	};
@@ -23,31 +23,31 @@ describe('invitation', () => {
 		const uid1 = register();
 		const uid2 = register();
 		const response = partners.invite(uid1, uid2);
-		if (!response.success) {
-			console.log(response.errorMsg);
+		if (!response.isSuccess()) {
+			console.log(response.getError());
 		}
-		expect(response.success).toBeTruthy();
+		expect(response.isSuccess()).toBeTruthy();
 	});
 	test('Successful invitation added to invitations list ', () => {
 		const uid1 = register();
 		const uid2 = register();
 		partners.invite(uid1, uid2);
 		const response = partners.getInvitations(uid2);
-		expect(response.data).toContainEqual(new InvitationData(uid1, uid1));
+		expect(response.getData()).toContainEqual(new InvitationData(uid1, uid1));
 	});
 	test('Successful invitation is not added to inviter invitations list ', () => {
 		const uid1 = register();
 		const uid2 = register();
 		partners.invite(uid1, uid2);
 		const response = partners.getInvitations(uid2);
-		expect(response.data).not.toContainEqual(new InvitationData(uid2, uid2));
+		expect(response.getData()).not.toContainEqual(new InvitationData(uid2, uid2));
 	});
 	test('Can invite twice successfully', () => {
 		const uid1 = register();
 		const uid2 = register();
 		partners.invite(uid1, uid2);
 		const response = partners.invite(uid1, uid2);
-		expect(response.success).toBeTruthy();
+		expect(response.isSuccess()).toBeTruthy();
 	});
 	test('Second invitation does not get added', () => {
 		const uid1 = register();
@@ -55,8 +55,8 @@ describe('invitation', () => {
 		partners.invite(uid1, uid2);
 		partners.invite(uid1, uid2);
 		const response = partners.getInvitations(uid2);
-		expect(response.data?.length).toBe(1);
-		expect(response.data).toContainEqual(new InvitationData(uid1, uid1));
+		expect(response.getData().length).toBe(1);
+		expect(response.getData()).toContainEqual(new InvitationData(uid1, uid1));
 	});
 
 	test('Accept invitation existing invitation successfully', () => {
@@ -64,13 +64,13 @@ describe('invitation', () => {
 		const uid2 = register();
 		partners.invite(uid1, uid2);
 		const response = partners.acceptInvitation(uid2, uid1);
-		expect(response.success).toBeTruthy();
+		expect(response.isSuccess()).toBeTruthy();
 	});
 	test('Can not accept invitation with no invitation', () => {
 		const uid1 = register();
 		const uid2 = register();
 		const response = partners.acceptInvitation(uid2, uid1);
-		expect(response.success).toBeFalsy();
+		expect(response.isSuccess()).toBeFalsy();
 	});
 	test('Can not accept twice', () => {
 		const uid1 = register();
@@ -78,7 +78,7 @@ describe('invitation', () => {
 		partners.invite(uid1, uid2);
 		partners.acceptInvitation(uid2, uid1);
 		const response = partners.acceptInvitation(uid2, uid1);
-		expect(response.success).toBeFalsy();
+		expect(response.isSuccess()).toBeFalsy();
 	});
 	test('Can not invite after getting accepted', () => {
 		const uid1 = register();
@@ -86,7 +86,7 @@ describe('invitation', () => {
 		partners.invite(uid1, uid2);
 		partners.acceptInvitation(uid2, uid1);
 		const response = partners.invite(uid1, uid2);
-		expect(response.success).toBeFalsy();
+		expect(response.isSuccess()).toBeFalsy();
 	});
 	test('Can not invite after accepting', () => {
 		const uid1 = register();
@@ -94,7 +94,7 @@ describe('invitation', () => {
 		partners.invite(uid1, uid2);
 		partners.acceptInvitation(uid2, uid1);
 		const response = partners.invite(uid2, uid1);
-		expect(response.success).toBeFalsy();
+		expect(response.isSuccess()).toBeFalsy();
 	});
 
 	test('Accepting an invitation creates a connection', () => {
@@ -104,8 +104,8 @@ describe('invitation', () => {
 		partners.acceptInvitation(uid2, uid1);
 		const response1 = partners.getPartners(uid1);
 		const response2 = partners.getPartners(uid2);
-		expect(response1?.data).toContainEqual(new PartnerData(uid2, uid2));
-		expect(response2?.data).toContainEqual(new PartnerData(uid1, uid1));
+		expect(response1.getData()).toContainEqual(new PartnerData(uid2, uid2));
+		expect(response2.getData()).toContainEqual(new PartnerData(uid1, uid1));
 	});
 	test('Accepting an invitation removes it', () => {
 		const uid1 = register();
@@ -113,7 +113,7 @@ describe('invitation', () => {
 		partners.invite(uid1, uid2);
 		partners.acceptInvitation(uid2, uid1);
 		const response = partners.getInvitations(uid2);
-		expect(response.data?.length).toBe(0);
+		expect(response.getData().length).toBe(0);
 	});
 	test('Rejecting an invitation removes it', () => {
 		const uid1 = register();
@@ -121,7 +121,7 @@ describe('invitation', () => {
 		partners.invite(uid1, uid2);
 		partners.rejectInvitation(uid2, uid1);
 		const response = partners.getInvitations(uid2);
-		expect(response.data?.length).toBe(0);
+		expect(response.getData().length).toBe(0);
 	});
 	test('Rejecting an invitation does not create a connection', () => {
 		const uid1 = register();
@@ -130,8 +130,8 @@ describe('invitation', () => {
 		partners.rejectInvitation(uid2, uid1);
 		const response1 = partners.getPartners(uid1);
 		const response2 = partners.getPartners(uid2);
-		expect(response1.data?.length).toBe(0);
-		expect(response2.data?.length).toBe(0);
+		expect(response1.getData().length).toBe(0);
+		expect(response2.getData().length).toBe(0);
 	});
 	test('Can invite again after getting rejected', () => {
 		const uid1 = register();
@@ -139,7 +139,7 @@ describe('invitation', () => {
 		partners.invite(uid1, uid2);
 		partners.rejectInvitation(uid2, uid1);
 		const response = partners.invite(uid1, uid2);
-		expect(response.success).toBeTruthy();
+		expect(response.isSuccess()).toBeTruthy();
 	});
 
 	test('Inviting after getting invited accepts invitation', () => {
@@ -152,10 +152,61 @@ describe('invitation', () => {
 		const responsePartners1 = partners.getPartners(uid1);
 		const responsePartners2 = partners.getPartners(uid2);
 
-		expect(responseInvitation.success).toBeTruthy();
-		expect(responseInvitations1.data?.length).toBe(0);
-		expect(responseInvitations2.data?.length).toBe(0);
-		expect(responsePartners1.data).toContainEqual(new PartnerData(uid2, uid2));
-		expect(responsePartners2.data).toContainEqual(new PartnerData(uid1, uid1));
+		expect(responseInvitation.isSuccess()).toBeTruthy();
+		expect(responseInvitations1.getData().length).toBe(0);
+		expect(responseInvitations2.getData().length).toBe(0);
+		expect(responsePartners1.getData()).toContainEqual(new PartnerData(uid2, uid2));
+		expect(responsePartners2.getData()).toContainEqual(new PartnerData(uid1, uid1));
+	});
+
+	test('Deleting existing connection successfully', () => {
+		const uid1 = register();
+		const uid2 = register();
+		partners.invite(uid1, uid2);
+		partners.invite(uid2, uid1);
+
+		const response = partners.leavePartner(uid1, uid2);
+		expect(response.isSuccess()).toBeTruthy();
+	});
+
+	test('Deleting existing connection removes partner', () => {
+		const uid1 = register();
+		const uid2 = register();
+		partners.invite(uid1, uid2);
+		partners.invite(uid2, uid1);
+
+		partners.leavePartner(uid1, uid2);
+		const response = partners.getPartners(uid1);
+		expect(response.getData().length).toBe(0);
+	});
+
+	test('Deleting existing connection removes me from partner', () => {
+		const uid1 = register();
+		const uid2 = register();
+		partners.invite(uid1, uid2);
+		partners.invite(uid2, uid1);
+
+		partners.leavePartner(uid1, uid2);
+		const response = partners.getPartners(uid2);
+		expect(response.getData().length).toBe(0);
+	});
+
+	test('Deleting none existing connection fails', () => {
+		const uid1 = register();
+		const uid2 = register();
+		partners.invite(uid1, uid2);
+
+		const response = partners.leavePartner(uid1, uid2);
+		expect(response.isSuccess()).toBeFalsy();
+	});
+
+	test('Deleting none existing user fails', () => {
+		const uid1 = register();
+		const uid2 = register();
+		partners.invite(uid1, uid2);
+		partners.invite(uid2, uid1);
+
+		const response = partners.leavePartner(uid1, 'random');
+		expect(response.isSuccess()).toBeFalsy();
 	});
 });

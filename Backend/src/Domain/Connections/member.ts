@@ -1,6 +1,8 @@
-import { makeFail, makeGood, ResponseMsg } from '../../response';
+import { makeFail, makeGood, makeGoodArrPa, ResponseMsg } from '../../response';
+import CouponData from '../../Service/DataObjects/coupon-data';
 import PartnerData from '../../Service/DataObjects/partner-data';
 import ConnectionSettings from './connection-settings';
+import Coupon from './Coupon';
 import Invitation from './invitation';
 
 export default class Member {
@@ -49,6 +51,14 @@ export default class Member {
 		return this.removeInvitation(inviterUID);
 	}
 
+	leavePartner(partnerUID: string): ResponseMsg<null> {
+		if (!this.connections[partnerUID]) {
+			return makeFail('You do not have a connection with given member');
+		}
+		delete this.connections[partnerUID];
+		return makeGood();
+	}
+
 	addConnection(partnerUID: string, connection: ConnectionSettings): void {
 		if (this.connections[partnerUID]) {
 			throw new Error('Can not redeclare connections');
@@ -73,6 +83,29 @@ export default class Member {
 
 	hasInvitation(fromUID: string): boolean {
 		return this._invitations[fromUID] !== undefined;
+	}
+
+	createCoupon(partnerUID: string, content: string): ResponseMsg<string> {
+		if (!this.connections[partnerUID]) {
+			return makeFail('You do not have a connection with given member');
+		}
+		return this.connections[partnerUID].onPartner((partner) => partner.createCoupon(content));
+	}
+
+	getPartnersBank(partnerUID: string): ResponseMsg<Coupon[], CouponData[]> {
+		if (!this.connections[partnerUID]) {
+			return makeFail('You do not have a connection with given member');
+		}
+		return this.connections[partnerUID].onPartner((partner) =>
+			makeGoodArrPa(partner.availableCoupons)
+		);
+	}
+
+	removeCoupon(partnerUID: string, couponId: string): ResponseMsg<null> {
+		if (!this.connections[partnerUID]) {
+			return makeFail('You do not have a connection with given member');
+		}
+		return this.connections[partnerUID].onPartner((partner) => partner.removeCoupon(couponId));
 	}
 
 	private removeInvitation(uid: string): ResponseMsg<null> {

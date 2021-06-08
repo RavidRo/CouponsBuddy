@@ -27,6 +27,10 @@ export default class PartnersFacade extends Singleton {
 		return this.members.acceptInvitation(myUID, inviterUID);
 	}
 
+	leavePartner(myUID: string, partnerUID: string): ResponseMsg<null> {
+		return this.members.leavePartner(myUID, partnerUID);
+	}
+
 	getInvitations(myUID: string): ResponseMsg<InvitationData[]> {
 		return this.members.getInvitations(myUID).parse();
 	}
