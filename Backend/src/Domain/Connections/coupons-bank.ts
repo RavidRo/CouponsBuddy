@@ -1,4 +1,4 @@
-import { makeFail, makeGood, makeGoodPr, ResponseMsg } from '../../response';
+import { makeFail, makeGood, ResponseMsg } from '../../response';
 import Coupon from './Coupon';
 
 export default class CouponsBank {
@@ -20,7 +20,7 @@ export default class CouponsBank {
 		}
 		const coupon = new Coupon(content);
 		this._availableCoupons[coupon.id] = coupon;
-		return makeGoodPr(coupon.id);
+		return makeGood(coupon.id);
 	}
 
 	removeCoupon(couponId: string): ResponseMsg<null> {
@@ -29,5 +29,19 @@ export default class CouponsBank {
 		}
 		delete this._availableCoupons[couponId];
 		return makeGood();
+	}
+
+	editCoupon(couponId: string, newContent: string): ResponseMsg<null> {
+		if (!(couponId in this._availableCoupons)) {
+			return makeFail('Given coupon does not exists in the bank of your partner');
+		}
+		return this._availableCoupons[couponId].editCoupon(newContent);
+	}
+
+	setCouponRarity(couponID: string, rarityName: string): ResponseMsg<null> {
+		if (!(couponID in this._availableCoupons)) {
+			return makeFail('Given coupon does not exists in the bank of your partner');
+		}
+		return this._availableCoupons[couponID].setRarity(rarityName);
 	}
 }

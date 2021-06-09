@@ -3,6 +3,13 @@ export interface Parsable<T, U> {
 	getData(): T;
 }
 
+const isParsable = <T, U>(object: unknown): object is Parsable<T, U> => {
+	return (object as Parsable<T, U>).parse !== undefined;
+};
+const isParsableArr = <T, U>(arr: unknown[]): arr is Parsable<T, U>[] => {
+	return arr.length === 0 || isParsable(arr[0]);
+};
+
 class PrimitiveParsable<T> implements Parsable<T, T> {
 	private _data: T;
 
@@ -82,23 +89,44 @@ class ResponseFail<T, U> implements ResponseMsg<T, U> {
 		return new ResponseFail(this._error);
 	}
 }
-export const makeGood = (): ResponseMsg<null> => {
-	return new ResponseSuccess(new PrimitiveParsable(null));
-};
-export const makeGoodPr = <T>(data: T): ResponseMsg<T> => {
-	return new ResponseSuccess(new PrimitiveParsable(data));
-};
-export const makeGoodPa = <T, U>(data: Parsable<T, U>): ResponseMsg<T, U> => {
-	return new ResponseSuccess(data);
-};
-export const makeGoodArrPa = <T, U>(data: Parsable<T, U>[]): ResponseMsg<T[], U[]> => {
-	return new ResponseSuccess(new ArrParsable<T, U>(data));
-};
-export const makeGoodArrPr = <T>(data: T[]): ResponseMsg<T[]> => {
+
+function makeGoodArr<T, U>(data: T[] | Parsable<T, U>[]): ResponseMsg<T[]> | ResponseMsg<T[], U[]> {
+	if (isParsableArr(data)) {
+		return new ResponseSuccess(new ArrParsable<T, U>(data));
+	}
 	return new ResponseSuccess(
 		new ArrParsable<T, T>(data.map((curr) => new PrimitiveParsable(curr)))
 	);
-};
+}
+function makeGoodData<T, U>(data: T | Parsable<T, U>): ResponseMsg<T> | ResponseMsg<T, U> {
+	if (isParsable(data)) {
+		return new ResponseSuccess(data);
+	}
+	return new ResponseSuccess(new PrimitiveParsable(data));
+}
+
+export function makeGood(): ResponseMsg<null>;
+export function makeGood<T>(data: T): ResponseMsg<T>;
+export function makeGood<T, U>(data: Parsable<T, U>): ResponseMsg<T, U>;
+export function makeGood<T>(data: T[]): ResponseMsg<T[]>;
+export function makeGood<T, U>(data: Parsable<T, U>[]): ResponseMsg<T[], U[]>;
+export function makeGood<T, U>(
+	data?: T | Parsable<T, U> | T[] | Parsable<T, U>[]
+):
+	| ResponseMsg<null>
+	| ResponseMsg<T>
+	| ResponseMsg<T, U>
+	| ResponseMsg<T[]>
+	| ResponseMsg<T[], U[]> {
+	if (data === undefined) {
+		return new ResponseSuccess(new PrimitiveParsable(null));
+	}
+	if (Array.isArray(data)) {
+		return makeGoodArr(data);
+	}
+	return makeGoodData(data);
+}
+
 export const makeFail = <T, U>(error: string): ResponseMsg<T, U> => {
 	return new ResponseFail(error);
 };

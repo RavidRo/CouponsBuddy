@@ -1,5 +1,4 @@
-import { ResponseMsg, makeFail, makeGood, makeGoodArrPa, makeGoodArrPr } from '../../response';
-import CouponData from '../../Service/DataObjects/coupon-data';
+import { ResponseMsg, makeFail, makeGood } from '../../response';
 import InvitationData from '../../Service/DataObjects/invitation-data';
 import PartnerData from '../../Service/DataObjects/partner-data';
 import Singleton from '../../singleton';
@@ -71,32 +70,20 @@ export default class Members extends Singleton {
 	}
 
 	@validateUID()
+	onMember<T, U = T>(
+		uid: string,
+		func: (member: Member) => ResponseMsg<T, U>
+	): ResponseMsg<T, U> {
+		return func(this._members[uid]);
+	}
+
+	@validateUID()
 	getInvitations(uid: string): ResponseMsg<Invitation[], InvitationData[]> {
-		return makeGoodArrPa(this._members[uid].invitations);
+		return makeGood(this._members[uid].invitations);
 	}
 
 	@validateUID()
 	getPartners(uid: string): ResponseMsg<PartnerData[]> {
-		return makeGoodArrPr(this._members[uid].getPartners());
-	}
-
-	@validateUID()
-	rejectInvitation(uid: string, toRejectUID: string): ResponseMsg<null> {
-		return this._members[uid].rejectInvitation(toRejectUID);
-	}
-
-	@validateUID()
-	createCoupon(uid: string, partnerUID: string, content: string): ResponseMsg<string> {
-		return this._members[uid].createCoupon(partnerUID, content);
-	}
-
-	@validateUID()
-	getPartnersBank(uid: string, partnerUID: string): ResponseMsg<CouponData[]> {
-		return this._members[uid].getPartnersBank(partnerUID).parse();
-	}
-
-	@validateUID()
-	removeCoupon(uid: string, partnerUID: string, couponId: string): ResponseMsg<null> {
-		return this._members[uid].removeCoupon(partnerUID, couponId);
+		return makeGood(this._members[uid].getPartners());
 	}
 }

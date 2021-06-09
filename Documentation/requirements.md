@@ -22,7 +22,7 @@
 3. Members can remove coupons from a partner's coupons bank.
 4. Members can edit coupons in a partner's coupons bank.
 5. Members can set a coupon's rarity in a partner's coupons bank.
-6. Members can set a partner's coupons price.
+6. Members can set a their partner's random coupon price.
 7. Members can use their points to buy a random coupon from their bank.
 8. Members can send a coupons to a partner from the bank, example coupons or a costume one.
 9. Members can send points to a partner.

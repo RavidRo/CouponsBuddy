@@ -1,6 +1,6 @@
 // import admin from 'firebase-admin';
 import { Firebase } from '../../firebase';
-import { makeFail, makeGoodPr, ResponseMsg } from '../../response';
+import { makeFail, makeGood, ResponseMsg } from '../../response';
 import Singleton from '../../singleton';
 
 export class Authentication extends Singleton {
@@ -19,14 +19,14 @@ export class Authentication extends Singleton {
 	authenticate(authToken: string): Promise<ResponseMsg<string>> {
 		return this.firebase.auth
 			.verifyIdToken(authToken)
-			.then((idToken) => makeGoodPr(idToken.uid))
+			.then((idToken) => makeGood(idToken.uid))
 			.catch((error) => makeFail(error));
 	}
 
 	getUserByPhoneNumber(phoneNumber: string): Promise<ResponseMsg<string>> {
 		return this.firebase.auth
 			.getUserByPhoneNumber(phoneNumber)
-			.then((userRecord) => makeGoodPr(userRecord.uid))
+			.then((userRecord) => makeGood(userRecord.uid))
 			.catch((error) => makeFail(error));
 	}
 }

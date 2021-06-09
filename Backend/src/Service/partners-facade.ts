@@ -2,6 +2,7 @@ import { Authentication } from '../Domain/Authentication/authentication';
 import Members from '../Domain/Connections/members';
 import { ResponseMsg } from '../response';
 import Singleton from '../singleton';
+import ConnectionData from './DataObjects/connection-data';
 import InvitationData from './DataObjects/invitation-data';
 import PartnerData from './DataObjects/partner-data';
 
@@ -40,6 +41,10 @@ export default class PartnersFacade extends Singleton {
 	}
 
 	rejectInvitation(myUID: string, toRejectUID: string): ResponseMsg<null> {
-		return this.members.rejectInvitation(myUID, toRejectUID);
+		return this.members.onMember(myUID, (member) => member.rejectInvitation(toRejectUID));
+	}
+
+	getConnection(myUID: string, partnerUID: string): ResponseMsg<ConnectionData> {
+		return this.members.onMember(myUID, (member) => member.getConnection(partnerUID));
 	}
 }
