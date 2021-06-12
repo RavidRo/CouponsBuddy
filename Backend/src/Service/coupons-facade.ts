@@ -60,4 +60,12 @@ export default class CouponsFacade extends Singleton {
 			member.setRandomCouponPrice(partnerUID, price)
 		);
 	}
+
+	drawCoupon(myUID: string, partnerUID: string): ResponseMsg<CouponData> {
+		return this.members.onMember(myUID, (member) => member.drawCoupon(partnerUID));
+	}
+
+	getAvailableCoupons(myUID: string, partnerUID: string): ResponseMsg<CouponData[]> {
+		return this.members.onMember(myUID, (member) => member.getEarnedCoupon(partnerUID));
+	}
 }

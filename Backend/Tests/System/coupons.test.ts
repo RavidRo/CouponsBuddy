@@ -232,11 +232,18 @@ describe('Set price for your partner random coupon', () => {
 		expect(response.isSuccess()).toBeFalsy();
 	});
 
+	test('Set price a none full number fail', () => {
+		const [uid1, uid2] = connection();
+
+		const response = coupons.setRandomCouponPrice(uid1, uid2, 5.4);
+		expect(response.isSuccess()).toBeFalsy();
+	});
+
 	test('Set price to 0 successfully', () => {
 		const [uid1, uid2] = connection();
 
 		const response = coupons.setRandomCouponPrice(uid1, uid2, 0);
-		expect(response.isSuccess()).toBeFalsy();
+		expect(response.isSuccess()).toBeTruthy();
 	});
 
 	test('Setting the price successfully will changed the saved price', () => {
@@ -247,5 +254,45 @@ describe('Set price for your partner random coupon', () => {
 			const connection = partners.getConnection(uid1, uid2).getData();
 			expect(connection.partner.randomCouponPrice).toBe(price);
 		});
+	});
+});
+
+describe('Drawing a random coupon', () => {
+	test('Drawing a coupon successfully', () => {
+		const [uid1, uid2] = connection();
+		partners.sendPoints(uid1, uid2, 10000000);
+		coupons.createCoupon(uid1, uid2, 'New coupon');
+
+		const response = coupons.drawCoupon(uid2, uid1);
+		expect(response.isSuccess()).toBeTruthy();
+	});
+
+	test('Drawing a coupon fails when given user does not exist', () => {
+		const [uid1, uid2] = connection();
+		partners.sendPoints(uid1, uid2, 10000000);
+		coupons.createCoupon(uid1, uid2, 'New coupon');
+
+		const response = coupons.drawCoupon('wooo', uid1);
+		expect(response.isSuccess()).toBeFalsy();
+	});
+
+	test('Drawing a coupon fails when given partner does not exist', () => {
+		const [uid1, uid2] = connection();
+		partners.sendPoints(uid1, uid2, 10000000);
+		coupons.createCoupon(uid1, uid2, 'New coupon');
+
+		const response = coupons.drawCoupon(uid2, 'wooo');
+		expect(response.isSuccess()).toBeFalsy();
+	});
+
+	test('Drawing a coupon adds it to the earned coupons', () => {
+		const [uid1, uid2] = connection();
+		partners.sendPoints(uid1, uid2, 10000000);
+		coupons.createCoupon(uid1, uid2, 'New coupon');
+
+		const drawnCoupon = coupons.drawCoupon(uid2, uid1).getData();
+		const earnedCoupons = coupons.getAvailableCoupons(uid2, uid1).getData();
+
+		expect(earnedCoupons).toContainEqual(drawnCoupon);
 	});
 });

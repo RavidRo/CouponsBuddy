@@ -209,4 +209,71 @@ describe('invitation', () => {
 		const response = partners.leavePartner(uid1, 'random');
 		expect(response.isSuccess()).toBeFalsy();
 	});
+
+	test('Both partners start with 0 points', () => {
+		const uid1 = register();
+		const uid2 = register();
+		partners.invite(uid1, uid2);
+		partners.invite(uid2, uid1);
+
+		const connection = partners.getConnection(uid1, uid2).getData();
+		expect(connection.me.points).toBe(0);
+		expect(connection.partner.points).toBe(0);
+	});
+});
+
+describe('Sending points to a partner', () => {
+	test('Sending points successfully', () => {
+		const uid1 = register();
+		const uid2 = register();
+		partners.invite(uid1, uid2);
+		partners.invite(uid2, uid1);
+
+		const response = partners.sendPoints(uid1, uid2, 20);
+		expect(response.isSuccess()).toBeTruthy();
+	});
+
+	test('Sending negative points fail', () => {
+		const uid1 = register();
+		const uid2 = register();
+		partners.invite(uid1, uid2);
+		partners.invite(uid2, uid1);
+
+		const response = partners.sendPoints(uid1, uid2, -124);
+		expect(response.isSuccess()).toBeFalsy();
+	});
+
+	test('Sending 0 points fail', () => {
+		const uid1 = register();
+		const uid2 = register();
+		partners.invite(uid1, uid2);
+		partners.invite(uid2, uid1);
+
+		const response = partners.sendPoints(uid1, uid2, 0);
+		expect(response.isSuccess()).toBeFalsy();
+	});
+
+	test('Sending none full number of points fail', () => {
+		const uid1 = register();
+		const uid2 = register();
+		partners.invite(uid1, uid2);
+		partners.invite(uid2, uid1);
+
+		const response = partners.sendPoints(uid1, uid2, 4.7);
+		expect(response.isSuccess()).toBeFalsy();
+	});
+
+	test('Sending points successfully will add points to your partner', () => {
+		const uid1 = register();
+		const uid2 = register();
+		partners.invite(uid1, uid2);
+		partners.invite(uid2, uid1);
+
+		const points = [1, 20, 5, 7, 14, 2, 104];
+		points.forEach((point) => {
+			partners.sendPoints(uid1, uid2, point);
+		});
+		const connection = partners.getConnection(uid1, uid2).getData();
+		expect(connection.partner.points).toBe(points.reduce((prev, curr) => curr + prev));
+	});
 });

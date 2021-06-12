@@ -144,6 +144,23 @@ export default class Member {
 		return this._connections[partnerUID].getConnection();
 	}
 
+	@validatePartner()
+	sendPoints(partnerUID: string, points: number): ResponseMsg<null> {
+		return this._connections[partnerUID].onPartner((partner) => partner.addPoints(points));
+	}
+
+	@validatePartner()
+	drawCoupon(partnerUID: string): ResponseMsg<CouponData> {
+		return this._connections[partnerUID].drawCoupon();
+	}
+
+	getEarnedCoupon(partnerUID: string): ResponseMsg<CouponData[]> {
+		const response: ResponseMsg<Coupon[], CouponData[]> = makeGood(
+			this._connections[partnerUID].earnedCoupons
+		);
+		return response.parse();
+	}
+
 	private removeInvitation(uid: string): ResponseMsg<null> {
 		delete this._invitations[uid];
 		return makeGood();

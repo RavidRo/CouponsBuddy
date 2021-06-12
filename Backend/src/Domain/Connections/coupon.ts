@@ -18,6 +18,10 @@ export default class Coupon implements Parsable<Coupon, CouponData> {
 		return this._id;
 	}
 
+	get rarityName(): string {
+		return this._rarity.name;
+	}
+
 	getData(): Coupon {
 		return this;
 	}

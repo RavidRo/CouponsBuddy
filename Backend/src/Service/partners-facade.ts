@@ -47,4 +47,8 @@ export default class PartnersFacade extends Singleton {
 	getConnection(myUID: string, partnerUID: string): ResponseMsg<ConnectionData> {
 		return this.members.onMember(myUID, (member) => member.getConnection(partnerUID));
 	}
+
+	sendPoints(myUID: string, partnerUID: string, points: number): ResponseMsg<null> {
+		return this.members.onMember(myUID, (member) => member.sendPoints(partnerUID, points));
+	}
 }

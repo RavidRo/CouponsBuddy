@@ -14,6 +14,7 @@
 3. Members can receive incoming invitation.
 4. Members can accept or reject incoming invitation.
 5. Members can delete an existing connection of his.
+6. Members can send points to a partner.
 
 ### 3. Coupons:
 
@@ -25,7 +26,6 @@
 6. Members can set a their partner's random coupon price.
 7. Members can use their points to buy a random coupon from their bank.
 8. Members can send a coupons to a partner from the bank, example coupons or a costume one.
-9. Members can send points to a partner.
 
 ### 4. Goals
 

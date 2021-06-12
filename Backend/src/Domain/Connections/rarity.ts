@@ -1,6 +1,7 @@
 import { makeGood, Parsable, ResponseMsg } from '../../response';
 import RarityData from '../../Service/DataObjects/rarity-data';
-import rarities, { isRarityName } from './rarities-data';
+import defaultSettings from './Data/default-settings';
+import rarities, { isRarityName } from './Data/rarities-data';
 
 export default class Rarity implements Parsable<Rarity, RarityData> {
 	private _name: string;
@@ -17,11 +18,23 @@ export default class Rarity implements Parsable<Rarity, RarityData> {
 		Rarity._instances[name] = this;
 	}
 
+	get name(): string {
+		return this._name;
+	}
+
 	parse(): RarityData {
 		return new RarityData(this._name, this._probability, this._color);
 	}
 	getData(): Rarity {
 		return this;
+	}
+
+	static loadRarities(): void {
+		for (const [rarityName, rarity] of Object.entries(rarities)) {
+			if (!this._instances[rarityName]) {
+				new Rarity(rarityName, rarity.probability, rarity.color);
+			}
+		}
 	}
 
 	static getRarityByName(name: string): Rarity | undefined {
@@ -33,28 +46,37 @@ export default class Rarity implements Parsable<Rarity, RarityData> {
 		return new Rarity(name, newRarity.probability, newRarity.color);
 	}
 
-	static getRarities(): ResponseMsg<RarityData[]> {
-		for (const [rarityName, rarity] of Object.entries(rarities)) {
-			if (!this._instances[rarityName]) {
-				new Rarity(rarityName, rarity.probability, rarity.color);
+	static getDefault(): Rarity {
+		if (!this._default) {
+			const defaultName = defaultSettings.defaultCoupon;
+			const rarity = this.getRarityByName(defaultName);
+			if (!rarity) {
+				throw new Error('Default coupon rarity does not exists in rarities');
 			}
+			this._default = rarity;
 		}
+		return this._default;
+	}
+
+	static getRarities(): ResponseMsg<RarityData[]> {
+		this.loadRarities();
 		return makeGood<Rarity, RarityData>(Object.values(this._instances)).parse();
 	}
 
-	static getDefault(): Rarity {
-		if (!this._default) {
-			for (const [rarityName, rarity] of Object.entries(rarities)) {
-				if (rarity.default) {
-					this._default = new Rarity(rarityName, rarity.probability, rarity.color);
-				}
+	static getRandomRarityName(raritiesNames: string[]): string {
+		this.loadRarities();
+		const rarities = raritiesNames.map((rarityName) => {
+			if (rarityName in this._instances) {
+				throw new Error('Get random rarity got none existing rarity');
 			}
+			return this._instances[rarityName];
+		});
+		const sumOfProbabilities = rarities.reduce((prev, curr) => prev + curr._probability, 0);
+		let random = Math.random() * sumOfProbabilities;
+		for (const rarity of rarities) {
+			if (random <= rarity._probability) return rarity._name;
+			random -= rarity._probability;
 		}
-
-		if (!this._default) {
-			throw new Error('At least 1 rarity should be configured as default');
-		}
-
-		return this._default;
+		throw new Error('Some calculations gone wrong, does not suppose to get here');
 	}
 }
