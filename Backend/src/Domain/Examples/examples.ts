@@ -9,10 +9,6 @@ export default class Examples extends Singleton {
 		this._coupons_examples_bank = new ExampleBank('coupons');
 	}
 
-	static getInstance(): Examples {
-		return this.getInstanceGen(() => new Examples());
-	}
-
 	get CouponsExample(): TextPerCategory {
 		return this._coupons_examples_bank.examples;
 	}

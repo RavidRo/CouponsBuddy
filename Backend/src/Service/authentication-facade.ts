@@ -7,11 +7,7 @@ export default class AuthenticationFacade extends Singleton {
 
 	constructor() {
 		super();
-		this.members = Members.getInstance();
-	}
-
-	static getInstance(): AuthenticationFacade {
-		return this.getInstanceGen(() => new AuthenticationFacade());
+		this.members = new Members();
 	}
 
 	register(uid: string, nickname: string): ResponseMsg<null> {

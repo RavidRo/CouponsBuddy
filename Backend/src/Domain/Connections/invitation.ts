@@ -13,6 +13,14 @@ export default class Invitation implements Parsable<Invitation, InvitationData> 
 		this._sender = sender;
 	}
 
+	parse(): InvitationData {
+		return new InvitationData(this._sender.uid, this._sender.nickname);
+	}
+
+	getData(): Invitation {
+		return this;
+	}
+
 	accept(myNickname: string): ConnectionSettings {
 		const newConnection = new Connection();
 		const mySettings = new ConnectionSettings(newConnection, this._sender.nickname);
@@ -21,13 +29,5 @@ export default class Invitation implements Parsable<Invitation, InvitationData> 
 		partnerSettings.setPartner(mySettings);
 		this._sender.addConnection(this._toUID, partnerSettings);
 		return mySettings;
-	}
-
-	parse(): InvitationData {
-		return new InvitationData(this._sender.uid, this._sender.nickname);
-	}
-
-	getData(): Invitation {
-		return this;
 	}
 }

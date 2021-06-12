@@ -2,9 +2,9 @@ import Authentication from '../../src/Service/authentication-facade';
 import Partners from '../../src/Service/partners-facade';
 import Coupons from '../../src/Service/coupons-facade';
 
-const partners = Partners.getInstance();
-const authentication = Authentication.getInstance();
-const coupons = Coupons.getInstance();
+const partners = new Partners();
+const authentication = new Authentication();
+const coupons = new Coupons();
 
 const register = (() => {
 	let uid = 0;
@@ -46,7 +46,7 @@ describe('Create coupons', () => {
 			coupons.createCoupon(uid1, uid2, content);
 		});
 
-		const response = coupons.getPartnersBank(uid1, uid2);
+		const response = coupons.getPartnersAvailable(uid1, uid2);
 		const couponsBank = response.getData();
 
 		expect(couponsBank.length).toBe(contents.length);
@@ -57,7 +57,7 @@ describe('Create coupons', () => {
 		const [uid1, uid2] = connection();
 		coupons.createCoupon(uid1, uid2, 'Breakfast in bed');
 
-		const response = coupons.getPartnersBank(uid2, uid1);
+		const response = coupons.getPartnersAvailable(uid2, uid1);
 		const couponsBank = response.getData();
 
 		expect(couponsBank.length).toBe(0);
@@ -80,7 +80,7 @@ describe('Create coupons', () => {
 		const [uid1, uid2] = connection();
 
 		const id = coupons.createCoupon(uid1, uid2, 'A lovely coupon').getData();
-		const couponsBank = coupons.getPartnersBank(uid1, uid2).getData();
+		const couponsBank = coupons.getPartnersAvailable(uid1, uid2).getData();
 
 		expect(couponsBank).toHaveLength(1);
 		expect(couponsBank[0].id).toEqual(id);
@@ -111,7 +111,7 @@ describe('Remove coupon', () => {
 		const couponId = coupons.createCoupon(uid1, uid2, 'Breakfast in bed').getData();
 
 		coupons.removeCoupon(uid1, uid2, couponId);
-		const couponsBank = coupons.getPartnersBank(uid1, uid2).getData();
+		const couponsBank = coupons.getPartnersAvailable(uid1, uid2).getData();
 
 		expect(couponsBank).toHaveLength(0);
 	});
@@ -150,7 +150,7 @@ describe('Edit coupon', () => {
 		const couponId = coupons.createCoupon(uid1, uid2, 'Breakfast in bed').getData();
 
 		coupons.editCoupon(uid1, uid2, couponId, 'New content');
-		const couponsBank = coupons.getPartnersBank(uid1, uid2).getData();
+		const couponsBank = coupons.getPartnersAvailable(uid1, uid2).getData();
 
 		expect(couponsBank[0].content).toBe('New content');
 	});
@@ -189,7 +189,7 @@ describe('Set rarity', () => {
 		const rarities = coupons.getRarities().getData();
 		rarities.forEach((rarity) => {
 			coupons.setCouponRarity(uid1, uid2, id, rarity.name);
-			const coupon = coupons.getPartnersBank(uid1, uid2).getData()[0];
+			const coupon = coupons.getPartnersAvailable(uid1, uid2).getData()[0];
 			expect(coupon.rarity).toEqual(rarity);
 		});
 	});
@@ -285,14 +285,84 @@ describe('Drawing a random coupon', () => {
 		expect(response.isSuccess()).toBeFalsy();
 	});
 
+	test('Drawing a coupon fails when you do not have enough points', () => {
+		const [uid1, uid2] = connection();
+		coupons.createCoupon(uid1, uid2, 'New coupon');
+
+		const response = coupons.drawCoupon(uid2, uid1);
+		expect(response.isSuccess()).toBeFalsy();
+	});
+
+	test('Drawing a coupon fails when your partner did not set available coupons for you', () => {
+		const [uid1, uid2] = connection();
+		partners.sendPoints(uid1, uid2, 10000000);
+
+		const response = coupons.drawCoupon(uid2, uid1);
+		expect(response.isSuccess()).toBeFalsy();
+	});
+
 	test('Drawing a coupon adds it to the earned coupons', () => {
 		const [uid1, uid2] = connection();
 		partners.sendPoints(uid1, uid2, 10000000);
 		coupons.createCoupon(uid1, uid2, 'New coupon');
 
 		const drawnCoupon = coupons.drawCoupon(uid2, uid1).getData();
-		const earnedCoupons = coupons.getAvailableCoupons(uid2, uid1).getData();
+		const earnedCoupons = coupons.getEarnedCoupons(uid2, uid1).getData();
 
 		expect(earnedCoupons).toContainEqual(drawnCoupon);
+	});
+
+	test('Drawing a coupon removes points', () => {
+		const [uid1, uid2] = connection();
+		partners.sendPoints(uid1, uid2, 10000000);
+		coupons.createCoupon(uid1, uid2, 'New coupon');
+
+		const settingsPrev = partners.getConnection(uid2, uid1).getData();
+		coupons.drawCoupon(uid2, uid1).getData();
+		const settingsAfter = partners.getConnection(uid2, uid1).getData();
+
+		expect(settingsPrev.me.points - settingsPrev.me.randomCouponPrice).toBe(
+			settingsAfter.me.points
+		);
+	});
+});
+
+describe('Send coupon', () => {
+	test('Send a coupon successfully', () => {
+		const [uid1, uid2] = connection();
+
+		const response = coupons.sendCoupon(uid2, uid1, 'A new coupon for you <3');
+
+		expect(response.isSuccess()).toBeTruthy();
+	});
+
+	test('Send a coupon adds it to partners earned coupons', () => {
+		const [uid1, uid2] = connection();
+
+		coupons.sendCoupon(uid2, uid1, 'A new coupon for you <3');
+		const earned = coupons
+			.getEarnedCoupons(uid1, uid2)
+			.getData()
+			.map((coupon) => coupon.content);
+
+		expect(earned).toContain('A new coupon for you <3');
+	});
+
+	test('Send a coupon fails when user does not exist', () => {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const [uid1, _] = connection();
+
+		const response = coupons.sendCoupon('123123', uid1, 'A new coupon for you <3');
+
+		expect(response.isSuccess()).toBeFalsy();
+	});
+
+	test('Send a coupon fails when user does not have a connection with given partner', () => {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const [_, uid2] = connection();
+
+		const response = coupons.sendCoupon(uid2, 'dasdsa', 'A new coupon for you <3');
+
+		expect(response.isSuccess()).toBeFalsy();
 	});
 });

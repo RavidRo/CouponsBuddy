@@ -31,7 +31,7 @@
 
 1. Members can add a costume goal for a partner's goals list.
 2. Members can choose a goal from the example goals to add to a partner's goal list.
-3. Members can remove and edit a goal in a partner's goal list.
+3. Members can remove a goal in a partner's goal list.
 4. Members can set the points award for a goal in a partner's goal list.
 5. Members can set a goal as completed.
 6. Members can accept a partner's goal's completion.

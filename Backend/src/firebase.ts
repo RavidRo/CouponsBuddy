@@ -14,10 +14,6 @@ export class Firebase extends Singleton {
 		this._auth = admin.auth();
 	}
 
-	static getInstance(): Firebase {
-		return this.getInstanceGen(() => new Firebase());
-	}
-
 	get auth(): admin.auth.Auth {
 		return this._auth;
 	}

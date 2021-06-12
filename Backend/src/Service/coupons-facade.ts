@@ -1,5 +1,5 @@
 import Members from '../Domain/Connections/members';
-import Rarity from '../Domain/Connections/rarity';
+import Rarity from '../Domain/Connections/Coupons/rarity';
 import { ResponseMsg } from '../response';
 import Singleton from '../singleton';
 import CouponData from './DataObjects/coupon-data';
@@ -10,19 +10,17 @@ export default class CouponsFacade extends Singleton {
 
 	constructor() {
 		super();
-		this.members = Members.getInstance();
-	}
-
-	static getInstance(): CouponsFacade {
-		return this.getInstanceGen(() => new CouponsFacade());
+		this.members = new Members();
 	}
 
 	createCoupon(myUID: string, partnerUID: string, content: string): ResponseMsg<string> {
 		return this.members.onMember(myUID, (member) => member.createCoupon(partnerUID, content));
 	}
 
-	getPartnersBank(myUID: string, partnerUID: string): ResponseMsg<CouponData[]> {
-		return this.members.onMember(myUID, (member) => member.getPartnersBank(partnerUID).parse());
+	getPartnersAvailable(myUID: string, partnerUID: string): ResponseMsg<CouponData[]> {
+		return this.members.onMember(myUID, (member) =>
+			member.getPartnersAvailable(partnerUID).parse()
+		);
 	}
 
 	removeCoupon(myUID: string, partnerUID: string, couponId: string): ResponseMsg<null> {
@@ -65,7 +63,11 @@ export default class CouponsFacade extends Singleton {
 		return this.members.onMember(myUID, (member) => member.drawCoupon(partnerUID));
 	}
 
-	getAvailableCoupons(myUID: string, partnerUID: string): ResponseMsg<CouponData[]> {
+	getEarnedCoupons(myUID: string, partnerUID: string): ResponseMsg<CouponData[]> {
 		return this.members.onMember(myUID, (member) => member.getEarnedCoupon(partnerUID));
+	}
+
+	sendCoupon(myUID: string, partnerUID: string, content: string): ResponseMsg<string> {
+		return this.members.onMember(myUID, (member) => member.sendCoupon(partnerUID, content));
 	}
 }

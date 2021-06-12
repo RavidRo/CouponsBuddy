@@ -27,10 +27,6 @@ const validateUID = (checkSecond = false) => {
 export default class Members extends Singleton {
 	private _members: { [uid: string]: Member } = {};
 
-	static getInstance(): Members {
-		return this.getInstanceGen(() => new Members());
-	}
-
 	get members(): { [uid: string]: Member } {
 		return this._members;
 	}

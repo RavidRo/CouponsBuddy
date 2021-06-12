@@ -1,7 +1,7 @@
-import { makeGood, Parsable, ResponseMsg } from '../../response';
-import RarityData from '../../Service/DataObjects/rarity-data';
-import defaultSettings from './Data/default-settings';
-import rarities, { isRarityName } from './Data/rarities-data';
+import settings from '../../../../settings';
+import { makeGood, Parsable, ResponseMsg } from '../../../response';
+import RarityData from '../../../Service/DataObjects/rarity-data';
+import rarities, { isRarityName } from '../Data/rarities-data';
 
 export default class Rarity implements Parsable<Rarity, RarityData> {
 	private _name: string;
@@ -48,7 +48,7 @@ export default class Rarity implements Parsable<Rarity, RarityData> {
 
 	static getDefault(): Rarity {
 		if (!this._default) {
-			const defaultName = defaultSettings.defaultCoupon;
+			const defaultName = settings.defaults.defaultCoupon;
 			const rarity = this.getRarityByName(defaultName);
 			if (!rarity) {
 				throw new Error('Default coupon rarity does not exists in rarities');
@@ -66,7 +66,7 @@ export default class Rarity implements Parsable<Rarity, RarityData> {
 	static getRandomRarityName(raritiesNames: string[]): string {
 		this.loadRarities();
 		const rarities = raritiesNames.map((rarityName) => {
-			if (rarityName in this._instances) {
+			if (!(rarityName in this._instances)) {
 				throw new Error('Get random rarity got none existing rarity');
 			}
 			return this._instances[rarityName];

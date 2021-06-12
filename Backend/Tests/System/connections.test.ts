@@ -3,8 +3,8 @@ import InvitationData from '../../src/Service/DataObjects/invitation-data';
 import PartnerData from '../../src/Service/DataObjects/partner-data';
 import Partners from '../../src/Service/partners-facade';
 
-const partners = Partners.getInstance();
-const authentication = Authentication.getInstance();
+const partners = new Partners();
+const authentication = new Authentication();
 
 const register = (() => {
 	let uid = 0;
@@ -23,9 +23,7 @@ describe('invitation', () => {
 		const uid1 = register();
 		const uid2 = register();
 		const response = partners.invite(uid1, uid2);
-		if (!response.isSuccess()) {
-			console.log(response.getError());
-		}
+
 		expect(response.isSuccess()).toBeTruthy();
 	});
 	test('Successful invitation added to invitations list ', () => {

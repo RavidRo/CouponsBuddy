@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
-import { makeFail, makeGood, Parsable, ResponseMsg } from '../../response';
-import CouponData from '../../Service/DataObjects/coupon-data';
+import { makeFail, makeGood, Parsable, ResponseMsg } from '../../../response';
+import CouponData from '../../../Service/DataObjects/coupon-data';
 import Rarity from './rarity';
 
 export default class Coupon implements Parsable<Coupon, CouponData> {

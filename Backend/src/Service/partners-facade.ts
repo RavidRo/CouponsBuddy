@@ -12,12 +12,8 @@ export default class PartnersFacade extends Singleton {
 
 	constructor() {
 		super();
-		this.auth = Authentication.getInstance();
-		this.members = Members.getInstance();
-	}
-
-	static getInstance(): PartnersFacade {
-		return this.getInstanceGen(() => new PartnersFacade());
+		this.auth = new Authentication();
+		this.members = new Members();
 	}
 
 	invite(myUID: string, toUID: string): ResponseMsg<null> {

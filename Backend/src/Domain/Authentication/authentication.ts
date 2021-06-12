@@ -8,11 +8,7 @@ export class Authentication extends Singleton {
 
 	constructor() {
 		super();
-		this.firebase = Firebase.getInstance();
-	}
-
-	static getInstance(): Authentication {
-		return this.getInstanceGen(() => new Authentication());
+		this.firebase = new Firebase();
 	}
 
 	// Authenticates the given token and returns the user uid

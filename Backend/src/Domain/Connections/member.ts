@@ -1,9 +1,11 @@
 import { makeFail, makeGood, ResponseMsg } from '../../response';
 import ConnectionData from '../../Service/DataObjects/connection-data';
 import CouponData from '../../Service/DataObjects/coupon-data';
+import GoalData from '../../Service/DataObjects/goal-data';
 import PartnerData from '../../Service/DataObjects/partner-data';
 import ConnectionSettings from './connection-settings';
-import Coupon from './Coupon';
+import Coupon from './Coupons/coupon';
+import Goal from './Goals/goal';
 import Invitation from './invitation';
 
 const validatePartner = () => {
@@ -45,6 +47,11 @@ export default class Member {
 	}
 	get connections(): { [partnerUID: string]: ConnectionSettings } {
 		return this._connections;
+	}
+
+	private removeInvitation(uid: string): ResponseMsg<null> {
+		delete this._invitations[uid];
+		return makeGood();
 	}
 
 	invite(sender: Member): ResponseMsg<null> {
@@ -107,7 +114,7 @@ export default class Member {
 	}
 
 	@validatePartner()
-	getPartnersBank(partnerUID: string): ResponseMsg<Coupon[], CouponData[]> {
+	getPartnersAvailable(partnerUID: string): ResponseMsg<Coupon[], CouponData[]> {
 		return this._connections[partnerUID].onPartner((partner) =>
 			makeGood(partner.availableCoupons)
 		);
@@ -154,6 +161,7 @@ export default class Member {
 		return this._connections[partnerUID].drawCoupon();
 	}
 
+	@validatePartner()
 	getEarnedCoupon(partnerUID: string): ResponseMsg<CouponData[]> {
 		const response: ResponseMsg<Coupon[], CouponData[]> = makeGood(
 			this._connections[partnerUID].earnedCoupons
@@ -161,8 +169,33 @@ export default class Member {
 		return response.parse();
 	}
 
-	private removeInvitation(uid: string): ResponseMsg<null> {
-		delete this._invitations[uid];
-		return makeGood();
+	@validatePartner()
+	sendCoupon(partnerUID: string, content: string): ResponseMsg<string> {
+		return this._connections[partnerUID].onPartner((partner) => partner.earnCoupon(content));
+	}
+
+	@validatePartner()
+	addGoalToPartner(partnerUID: string, goal: string, reward: number): ResponseMsg<string> {
+		return this._connections[partnerUID].onPartner((partner) => partner.addGoal(goal, reward));
+	}
+
+	@validatePartner()
+	getMyGoals(partnerUID: string): ResponseMsg<GoalData[]> {
+		const response: ResponseMsg<Goal[], GoalData[]> = makeGood(
+			this._connections[partnerUID].goals
+		);
+		return response.parse();
+	}
+
+	@validatePartner()
+	removeGoal(partnerUID: string, goalID: string): ResponseMsg<null> {
+		return this._connections[partnerUID].onPartner((partner) => partner.removeGoal(goalID));
+	}
+
+	@validatePartner()
+	setGoalReward(partnerUID: string, goalID: string, reward: number): ResponseMsg<null> {
+		return this._connections[partnerUID].onPartner((partner) =>
+			partner.setGoalReward(goalID, reward)
+		);
 	}
 }

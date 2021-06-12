@@ -1,5 +1,5 @@
-import { makeFail, makeGood, ResponseMsg } from '../../response';
-import CouponData from '../../Service/DataObjects/coupon-data';
+import { makeFail, makeGood, ResponseMsg } from '../../../response';
+import CouponData from '../../../Service/DataObjects/coupon-data';
 import Coupon from './Coupon';
 import Rarity from './rarity';
 
@@ -52,7 +52,7 @@ export default class CouponsBank {
 	}
 
 	drawCoupon(): ResponseMsg<CouponData> {
-		if (Object.keys(this._availableCoupons).length) {
+		if (Object.keys(this._availableCoupons).length === 0) {
 			return makeFail('You partner did not set any coupons for you to draw from');
 		}
 		const raritiesNames = this.availableCoupons.map((coupon) => coupon.rarityName);
@@ -62,8 +62,15 @@ export default class CouponsBank {
 		);
 
 		if (!randomCoupon) {
-			throw new Error('Something went wrong when natching between rarities and names');
+			throw new Error('Something went wrong when matching between rarities and names');
 		}
+		this._earnedCoupons[randomCoupon.id] = randomCoupon;
 		return makeGood(randomCoupon.parse());
+	}
+
+	earnCoupon(content: string): ResponseMsg<string> {
+		const newCoupon = new Coupon(content);
+		this._earnedCoupons[newCoupon.id] = newCoupon;
+		return makeGood(newCoupon.id);
 	}
 }
