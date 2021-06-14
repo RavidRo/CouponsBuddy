@@ -23,7 +23,7 @@ export default class CouponsFacade extends Singleton {
 		);
 	}
 
-	removeCoupon(myUID: string, partnerUID: string, couponId: string): ResponseMsg<null> {
+	removeCoupon(myUID: string, partnerUID: string, couponId: string): ResponseMsg<void> {
 		return this.members.onMember(myUID, (member) => member.removeCoupon(partnerUID, couponId));
 	}
 
@@ -32,7 +32,7 @@ export default class CouponsFacade extends Singleton {
 		partnerUID: string,
 		couponID: string,
 		newContent: string
-	): ResponseMsg<null> {
+	): ResponseMsg<void> {
 		return this.members.onMember(myUID, (member) =>
 			member.editCoupon(partnerUID, couponID, newContent)
 		);
@@ -47,13 +47,13 @@ export default class CouponsFacade extends Singleton {
 		partnerUID: string,
 		couponID: string,
 		rarityName: string
-	): ResponseMsg<null> {
+	): ResponseMsg<void> {
 		return this.members.onMember(myUID, (member) =>
 			member.setCouponRarity(partnerUID, couponID, rarityName)
 		);
 	}
 
-	setRandomCouponPrice(myUID: string, partnerUID: string, price: number): ResponseMsg<null> {
+	setRandomCouponPrice(myUID: string, partnerUID: string, price: number): ResponseMsg<void> {
 		return this.members.onMember(myUID, (member) =>
 			member.setRandomCouponPrice(partnerUID, price)
 		);

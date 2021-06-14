@@ -8,14 +8,14 @@ export default abstract class GoalStatus {
 		this.goal = goal;
 	}
 
-	protected changeStatus(status: { new (goal: Goal): GoalStatus }): ResponseMsg<null> {
+	protected changeStatus(status: { new (goal: Goal): GoalStatus }): ResponseMsg<void> {
 		this.goal.status = new status(this.goal);
 		return makeGood();
 	}
 
-	abstract complete(): ResponseMsg<null>;
-	abstract incomplete(): ResponseMsg<null>;
-	abstract approve(): ResponseMsg<null>;
+	abstract complete(): ResponseMsg<void>;
+	abstract incomplete(): ResponseMsg<void>;
+	abstract approve(): ResponseMsg<void>;
 	abstract getStatus(): string;
 }
 
@@ -23,13 +23,13 @@ export class InProgress extends GoalStatus {
 	getStatus(): string {
 		return 'In Progress';
 	}
-	complete(): ResponseMsg<null> {
+	complete(): ResponseMsg<void> {
 		return this.changeStatus(Completed);
 	}
-	incomplete(): ResponseMsg<null> {
+	incomplete(): ResponseMsg<void> {
 		return makeFail('This goal is already in progress');
 	}
-	approve(): ResponseMsg<null> {
+	approve(): ResponseMsg<void> {
 		return this.changeStatus(Approved);
 	}
 }
@@ -38,13 +38,13 @@ export class Completed extends GoalStatus {
 	getStatus(): string {
 		return 'Completed';
 	}
-	complete(): ResponseMsg<null> {
+	complete(): ResponseMsg<void> {
 		return makeFail('This goal is already completed');
 	}
-	incomplete(): ResponseMsg<null> {
+	incomplete(): ResponseMsg<void> {
 		return this.changeStatus(InProgress);
 	}
-	approve(): ResponseMsg<null> {
+	approve(): ResponseMsg<void> {
 		return this.changeStatus(Approved);
 	}
 }
@@ -53,13 +53,13 @@ export class Approved extends GoalStatus {
 	getStatus(): string {
 		return 'Approved';
 	}
-	complete(): ResponseMsg<null> {
+	complete(): ResponseMsg<void> {
 		return makeFail('This goal is already completed');
 	}
-	incomplete(): ResponseMsg<null> {
+	incomplete(): ResponseMsg<void> {
 		return makeFail('Approved goals can not be unapproved');
 	}
-	approve(): ResponseMsg<null> {
+	approve(): ResponseMsg<void> {
 		return makeFail('This goal is already approved');
 	}
 }

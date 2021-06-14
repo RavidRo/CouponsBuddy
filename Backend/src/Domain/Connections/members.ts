@@ -31,7 +31,7 @@ export default class Members extends Singleton {
 		return this._members;
 	}
 
-	register(uid: string, nickname: string): ResponseMsg<null> {
+	register(uid: string, nickname: string): ResponseMsg<void> {
 		if (this._members[uid]) {
 			return makeFail('User with the given uid already exists');
 		}
@@ -40,7 +40,7 @@ export default class Members extends Singleton {
 	}
 
 	@validateUID(true)
-	invite(fromUID: string, toUID: string): ResponseMsg<null> {
+	invite(fromUID: string, toUID: string): ResponseMsg<void> {
 		const userTo = this._members[toUID];
 		const userFrom = this._members[fromUID];
 
@@ -52,17 +52,14 @@ export default class Members extends Singleton {
 	}
 
 	@validateUID()
-	acceptInvitation(uid: string, inviterUID: string): ResponseMsg<null> {
+	acceptInvitation(uid: string, inviterUID: string): ResponseMsg<void> {
 		return this._members[uid].acceptInvitation(inviterUID);
 	}
 
 	@validateUID(true)
-	leavePartner(uid: string, partnerUID: string): ResponseMsg<null> {
+	leavePartner(uid: string, partnerUID: string): ResponseMsg<void> {
 		const response = this._members[uid].leavePartner(partnerUID);
-		if (!response.isSuccess()) {
-			return response;
-		}
-		return this._members[partnerUID].leavePartner(uid);
+		return response.then(() => this._members[partnerUID].leavePartner(uid));
 	}
 
 	@validateUID()

@@ -29,7 +29,7 @@ export default class CouponsBank {
 		return makeGood(coupon.id);
 	}
 
-	removeCoupon(couponId: string): ResponseMsg<null> {
+	removeCoupon(couponId: string): ResponseMsg<void> {
 		if (!(couponId in this._availableCoupons)) {
 			return makeFail('Given coupon does not exists in the bank of your partner');
 		}
@@ -37,14 +37,14 @@ export default class CouponsBank {
 		return makeGood();
 	}
 
-	editCoupon(couponId: string, newContent: string): ResponseMsg<null> {
+	editCoupon(couponId: string, newContent: string): ResponseMsg<void> {
 		if (!(couponId in this._availableCoupons)) {
 			return makeFail('Given coupon does not exists in the bank of your partner');
 		}
 		return this._availableCoupons[couponId].editCoupon(newContent);
 	}
 
-	setCouponRarity(couponID: string, rarityName: string): ResponseMsg<null> {
+	setCouponRarity(couponID: string, rarityName: string): ResponseMsg<void> {
 		if (!(couponID in this._availableCoupons)) {
 			return makeFail('Given coupon does not exists in the bank of your partner');
 		}

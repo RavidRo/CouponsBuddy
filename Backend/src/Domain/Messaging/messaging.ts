@@ -36,7 +36,7 @@ class Chat {
 		return this._messages;
 	}
 
-	sendMessage(content: string, senderID: string): ResponseMsg<null> {
+	sendMessage(content: string, senderID: string): ResponseMsg<void> {
 		this._messages.push(new Message(content, senderID));
 		return makeGood();
 	}
@@ -53,7 +53,7 @@ class ChatState {
 		return this._chat.messages;
 	}
 
-	sendMessage(content: string, senderID: string): ResponseMsg<null> {
+	sendMessage(content: string, senderID: string): ResponseMsg<void> {
 		return this._chat.sendMessage(content, senderID);
 	}
 }
@@ -76,7 +76,7 @@ class Sender {
 		return makeGood<Message, MessageData>(this._chats[chatID].messages);
 	}
 
-	sendMessage(chatID: string, content: string, senderID: string): ResponseMsg<null> {
+	sendMessage(chatID: string, content: string, senderID: string): ResponseMsg<void> {
 		if (!(chatID in this._chats)) {
 			return makeFail('You do not have any chats with the given id');
 		}
@@ -114,7 +114,7 @@ export default class Messaging extends Singleton {
 		return this._senders[myID].getMessages(chatID).parse();
 	}
 
-	sendMessage(uid: string, chatID: string, content: string): ResponseMsg<null> {
+	sendMessage(uid: string, chatID: string, content: string): ResponseMsg<void> {
 		this.loadSender(uid);
 		return this._senders[uid].sendMessage(chatID, content, uid);
 	}

@@ -30,7 +30,7 @@ export default class Coupon implements Parsable<Coupon, CouponData> {
 		return new CouponData(this._id, this._content, this._rarity.parse());
 	}
 
-	editCoupon(newContent: string): ResponseMsg<null> {
+	editCoupon(newContent: string): ResponseMsg<void> {
 		if (newContent.length <= 0) {
 			return makeFail('Coupons must have content');
 		}
@@ -38,7 +38,7 @@ export default class Coupon implements Parsable<Coupon, CouponData> {
 		return makeGood();
 	}
 
-	setRarity(rarityName: string): ResponseMsg<null> {
+	setRarity(rarityName: string): ResponseMsg<void> {
 		const rarity = Rarity.getRarityByName(rarityName);
 		if (!rarity) {
 			return makeFail(`Rarity ${rarityName} does not exist`);

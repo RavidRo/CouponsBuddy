@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import { makeFail, makeGood, Parsable, ResponseMsg } from '../../../response';
+import { Parsable, ResponseMsg } from '../../../response';
 import GoalData from '../../../Service/DataObjects/goal-data';
 import GoalStatus, { InProgress } from './goal-status';
 
@@ -35,17 +35,14 @@ export default class Goal implements Parsable<Goal, GoalData> {
 		return this;
 	}
 
-	complete(): ResponseMsg<null> {
+	complete(): ResponseMsg<void> {
 		return this._status.complete();
 	}
-	incomplete(): ResponseMsg<null> {
+	incomplete(): ResponseMsg<void> {
 		return this._status.incomplete();
 	}
 	approve(): ResponseMsg<number> {
 		const response = this._status.approve();
-		if (response.isSuccess()) {
-			return makeGood(this._reward);
-		}
-		return makeFail(response.getError());
+		return response.then(() => this._reward);
 	}
 }

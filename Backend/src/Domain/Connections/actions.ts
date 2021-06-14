@@ -25,7 +25,7 @@ export default class Actions {
 		return actionName in Action;
 	}
 
-	disableAction(actionName: string): ResponseMsg<null> {
+	disableAction(actionName: string): ResponseMsg<void> {
 		if (!this.isActionName(actionName)) {
 			return makeFail(`${actionName} is not a valid action`);
 		}
@@ -33,7 +33,7 @@ export default class Actions {
 		return makeGood();
 	}
 
-	enableAction(actionName: string): ResponseMsg<null> {
+	enableAction(actionName: string): ResponseMsg<void> {
 		if (!this.isActionName(actionName)) {
 			return makeFail(`${actionName} is not a valid action`);
 		}

@@ -10,15 +10,15 @@ export default class ActionsFacade extends Singleton {
 		this.members = new Members();
 	}
 
-	disableAction(myUID: string, partnerUID: string, action: string): ResponseMsg<null> {
+	disableAction(myUID: string, partnerUID: string, action: string): ResponseMsg<void> {
 		return this.members.onMember(myUID, (member) => member.disableAction(partnerUID, action));
 	}
 
-	enableAction(myUID: string, partnerUID: string, action: string): ResponseMsg<null> {
+	enableAction(myUID: string, partnerUID: string, action: string): ResponseMsg<void> {
 		return this.members.onMember(myUID, (member) => member.enableAction(partnerUID, action));
 	}
 
-	sendHeart(myUID: string, partnerUID: string): ResponseMsg<null> {
+	sendHeart(myUID: string, partnerUID: string): ResponseMsg<void> {
 		return this.members.onMember(myUID, (member) => member.sendHeart(partnerUID, myUID));
 	}
 }

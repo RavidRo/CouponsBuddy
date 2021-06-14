@@ -16,15 +16,15 @@ export default class PartnersFacade extends Singleton {
 		this.members = new Members();
 	}
 
-	invite(myUID: string, toUID: string): ResponseMsg<null> {
+	invite(myUID: string, toUID: string): ResponseMsg<void> {
 		return this.members.invite(myUID, toUID);
 	}
 
-	acceptInvitation(myUID: string, inviterUID: string): ResponseMsg<null> {
+	acceptInvitation(myUID: string, inviterUID: string): ResponseMsg<void> {
 		return this.members.acceptInvitation(myUID, inviterUID);
 	}
 
-	leavePartner(myUID: string, partnerUID: string): ResponseMsg<null> {
+	leavePartner(myUID: string, partnerUID: string): ResponseMsg<void> {
 		return this.members.leavePartner(myUID, partnerUID);
 	}
 
@@ -36,7 +36,7 @@ export default class PartnersFacade extends Singleton {
 		return this.members.getPartners(myUID);
 	}
 
-	rejectInvitation(myUID: string, toRejectUID: string): ResponseMsg<null> {
+	rejectInvitation(myUID: string, toRejectUID: string): ResponseMsg<void> {
 		return this.members.onMember(myUID, (member) => member.rejectInvitation(toRejectUID));
 	}
 
@@ -44,7 +44,7 @@ export default class PartnersFacade extends Singleton {
 		return this.members.onMember(myUID, (member) => member.getConnection(partnerUID));
 	}
 
-	sendPoints(myUID: string, partnerUID: string, points: number): ResponseMsg<null> {
+	sendPoints(myUID: string, partnerUID: string, points: number): ResponseMsg<void> {
 		return this.members.onMember(myUID, (member) => member.sendPoints(partnerUID, points));
 	}
 }

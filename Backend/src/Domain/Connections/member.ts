@@ -49,12 +49,12 @@ export default class Member {
 		return this._connections;
 	}
 
-	private removeInvitation(uid: string): ResponseMsg<null> {
+	private removeInvitation(uid: string): ResponseMsg<void> {
 		delete this._invitations[uid];
 		return makeGood();
 	}
 
-	invite(sender: Member): ResponseMsg<null> {
+	invite(sender: Member): ResponseMsg<void> {
 		if (this._connections[sender.uid]) {
 			return makeFail('You are already partners');
 		}
@@ -65,7 +65,7 @@ export default class Member {
 		return makeGood();
 	}
 
-	acceptInvitation(inviterUID: string): ResponseMsg<null> {
+	acceptInvitation(inviterUID: string): ResponseMsg<void> {
 		if (!this._invitations[inviterUID]) {
 			return makeFail('Has no invitation from the given user');
 		}
@@ -77,7 +77,7 @@ export default class Member {
 	}
 
 	@validatePartner()
-	leavePartner(partnerUID: string): ResponseMsg<null> {
+	leavePartner(partnerUID: string): ResponseMsg<void> {
 		delete this._connections[partnerUID];
 		return makeGood();
 	}
@@ -96,7 +96,7 @@ export default class Member {
 		return partners;
 	}
 
-	rejectInvitation(toRejectUID: string): ResponseMsg<null> {
+	rejectInvitation(toRejectUID: string): ResponseMsg<void> {
 		if (!this._invitations[toRejectUID]) {
 			return makeFail('Has no invitation from the given user');
 		}
@@ -121,26 +121,26 @@ export default class Member {
 	}
 
 	@validatePartner()
-	removeCoupon(partnerUID: string, couponId: string): ResponseMsg<null> {
+	removeCoupon(partnerUID: string, couponId: string): ResponseMsg<void> {
 		return this._connections[partnerUID].onPartner((partner) => partner.removeCoupon(couponId));
 	}
 
 	@validatePartner()
-	editCoupon(partnerUID: string, couponID: string, newContent: string): ResponseMsg<null> {
+	editCoupon(partnerUID: string, couponID: string, newContent: string): ResponseMsg<void> {
 		return this._connections[partnerUID].onPartner((partner) =>
 			partner.editCoupon(couponID, newContent)
 		);
 	}
 
 	@validatePartner()
-	setCouponRarity(partnerUID: string, couponID: string, rarityName: string): ResponseMsg<null> {
+	setCouponRarity(partnerUID: string, couponID: string, rarityName: string): ResponseMsg<void> {
 		return this._connections[partnerUID].onPartner((partner) =>
 			partner.setCouponRarity(couponID, rarityName)
 		);
 	}
 
 	@validatePartner()
-	setRandomCouponPrice(partnerUID: string, price: number): ResponseMsg<null> {
+	setRandomCouponPrice(partnerUID: string, price: number): ResponseMsg<void> {
 		return this._connections[partnerUID].onPartner((partner) =>
 			partner.setRandomCouponPrice(price)
 		);
@@ -152,7 +152,7 @@ export default class Member {
 	}
 
 	@validatePartner()
-	sendPoints(partnerUID: string, points: number): ResponseMsg<null> {
+	sendPoints(partnerUID: string, points: number): ResponseMsg<void> {
 		return this._connections[partnerUID].onPartner((partner) => partner.addPoints(points));
 	}
 
@@ -188,44 +188,44 @@ export default class Member {
 	}
 
 	@validatePartner()
-	removeGoal(partnerUID: string, goalID: string): ResponseMsg<null> {
+	removeGoal(partnerUID: string, goalID: string): ResponseMsg<void> {
 		return this._connections[partnerUID].onPartner((partner) => partner.removeGoal(goalID));
 	}
 
 	@validatePartner()
-	setGoalReward(partnerUID: string, goalID: string, reward: number): ResponseMsg<null> {
+	setGoalReward(partnerUID: string, goalID: string, reward: number): ResponseMsg<void> {
 		return this._connections[partnerUID].onPartner((partner) =>
 			partner.setGoalReward(goalID, reward)
 		);
 	}
 
 	@validatePartner()
-	completeGoal(partnerUID: string, goalID: string): ResponseMsg<null> {
+	completeGoal(partnerUID: string, goalID: string): ResponseMsg<void> {
 		return this._connections[partnerUID].completeGoal(goalID);
 	}
 
 	@validatePartner()
-	approveGoal(partnerUID: string, goalID: string): ResponseMsg<null> {
+	approveGoal(partnerUID: string, goalID: string): ResponseMsg<void> {
 		return this._connections[partnerUID].onPartner((partner) => partner.approveGoal(goalID));
 	}
 
 	@validatePartner()
-	incompleteGoal(partnerUID: string, goalID: string): ResponseMsg<null> {
+	incompleteGoal(partnerUID: string, goalID: string): ResponseMsg<void> {
 		return this._connections[partnerUID].onPartner((partner) => partner.incompleteGoal(goalID));
 	}
 
 	@validatePartner()
-	disableAction(partnerUID: string, action: string): ResponseMsg<null> {
+	disableAction(partnerUID: string, action: string): ResponseMsg<void> {
 		return this._connections[partnerUID].onPartner((partner) => partner.disableAction(action));
 	}
 
 	@validatePartner()
-	enableAction(partnerUID: string, action: string): ResponseMsg<null> {
+	enableAction(partnerUID: string, action: string): ResponseMsg<void> {
 		return this._connections[partnerUID].onPartner((partner) => partner.enableAction(action));
 	}
 
 	@validatePartner()
-	sendHeart(partnerUID: string, senderUID: string): ResponseMsg<null> {
+	sendHeart(partnerUID: string, senderUID: string): ResponseMsg<void> {
 		return this._connections[partnerUID].sendHeart(senderUID);
 	}
 }

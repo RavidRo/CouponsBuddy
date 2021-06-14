@@ -1,4 +1,4 @@
-export interface Parsable<T, U> {
+export interface Parsable<T, U = T> {
 	parse(): U;
 	getData(): T;
 }
@@ -10,7 +10,7 @@ const isParsableArr = <T, U>(arr: unknown[]): arr is Parsable<T, U>[] => {
 	return arr.length === 0 || isParsable(arr[0]);
 };
 
-class PrimitiveParsable<T> implements Parsable<T, T> {
+class PrimitiveParsable<T> implements Parsable<T> {
 	private _data: T;
 
 	constructor(data: T) {
@@ -42,7 +42,18 @@ export interface ResponseMsg<T, U = T> extends Parsable<T, ResponseMsg<U>> {
 	isSuccess(): boolean;
 	getError(): string;
 	getData(): T;
-	then<V>(func: (data: T) => V): ResponseMsg<V>;
+	then<V>(func: (data: T) => V | ResponseMsg<V>): ResponseMsg<V>;
+}
+
+function isResponse<T, U = T>(object: unknown): object is ResponseMsg<T, U> {
+	const response = object as ResponseMsg<T, U>;
+	const { isSuccess, getError, getData, then } = response;
+	return (
+		isSuccess !== undefined &&
+		getError !== undefined &&
+		getData !== undefined &&
+		then !== undefined
+	);
 }
 
 class ResponseSuccess<T, U = T> implements ResponseMsg<T, U> {
@@ -69,12 +80,16 @@ class ResponseSuccess<T, U = T> implements ResponseMsg<T, U> {
 		return response;
 	}
 
-	then<V>(func: (data: T) => V): ResponseMsg<V> {
-		return makeGood(func(this._data.getData()));
+	then<V>(func: (data: T) => V | ResponseMsg<V>): ResponseMsg<V> {
+		const returnValue = func(this._data.getData());
+		if (isResponse(returnValue)) {
+			return returnValue;
+		}
+		return makeGood(returnValue);
 	}
 }
 
-class ResponseFail<T, U> implements ResponseMsg<T, U> {
+class ResponseFail implements ResponseMsg<unknown, unknown> {
 	private _error: string;
 
 	constructor(error: string) {
@@ -87,15 +102,15 @@ class ResponseFail<T, U> implements ResponseMsg<T, U> {
 	getError(): string {
 		return this._error;
 	}
-	getData(): T {
+	getData(): never {
 		throw new Error('Failed response does not have data');
 	}
-	parse(): ResponseMsg<U> {
+	parse<T>(): ResponseMsg<T> {
 		return new ResponseFail(this._error);
 	}
 
-	then<V>(_: (data: T) => V): ResponseMsg<V> {
-		return makeFail(this._error);
+	then<V, T>(_: (data: T) => V | ResponseMsg<V>): ResponseMsg<V> {
+		return this;
 	}
 }
 
@@ -114,7 +129,7 @@ function makeGoodData<T, U>(data: T | Parsable<T, U>): ResponseMsg<T> | Response
 	return new ResponseSuccess(new PrimitiveParsable(data));
 }
 
-export function makeGood(): ResponseMsg<null>;
+export function makeGood(): ResponseMsg<void>;
 export function makeGood<T>(data: T): ResponseMsg<T>;
 export function makeGood<T, U>(data: Parsable<T, U>): ResponseMsg<T, U>;
 export function makeGood<T>(data: T[]): ResponseMsg<T[]>;
@@ -122,13 +137,13 @@ export function makeGood<T, U>(data: Parsable<T, U>[]): ResponseMsg<T[], U[]>;
 export function makeGood<T, U>(
 	data?: T | Parsable<T, U> | T[] | Parsable<T, U>[]
 ):
-	| ResponseMsg<null>
+	| ResponseMsg<void>
 	| ResponseMsg<T>
 	| ResponseMsg<T, U>
 	| ResponseMsg<T[]>
 	| ResponseMsg<T[], U[]> {
 	if (data === undefined) {
-		return new ResponseSuccess(new PrimitiveParsable(null));
+		return new ResponseSuccess(new PrimitiveParsable(undefined));
 	}
 	if (Array.isArray(data)) {
 		return makeGoodArr(data);

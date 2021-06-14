@@ -10,7 +10,7 @@ export default class AuthenticationFacade extends Singleton {
 		this.members = new Members();
 	}
 
-	register(uid: string, nickname: string): ResponseMsg<null> {
+	register(uid: string, nickname: string): ResponseMsg<void> {
 		return this.members.register(uid, nickname);
 	}
 }

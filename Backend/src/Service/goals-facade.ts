@@ -26,7 +26,7 @@ export default class GoalsFacade extends Singleton {
 		return this.members.onMember(myUID, (member) => member.getMyGoals(partnerUID));
 	}
 
-	removeGoal(myUID: string, partnerUID: string, goalID: string): ResponseMsg<null> {
+	removeGoal(myUID: string, partnerUID: string, goalID: string): ResponseMsg<void> {
 		return this.members.onMember(myUID, (member) => member.removeGoal(partnerUID, goalID));
 	}
 
@@ -35,21 +35,21 @@ export default class GoalsFacade extends Singleton {
 		partnerUID: string,
 		goalID: string,
 		reward: number
-	): ResponseMsg<null> {
+	): ResponseMsg<void> {
 		return this.members.onMember(myUID, (member) =>
 			member.setGoalReward(partnerUID, goalID, reward)
 		);
 	}
 
-	completeGoal(myUID: string, partnerUID: string, goalID: string): ResponseMsg<null> {
+	completeGoal(myUID: string, partnerUID: string, goalID: string): ResponseMsg<void> {
 		return this.members.onMember(myUID, (member) => member.completeGoal(partnerUID, goalID));
 	}
 
-	approveGoal(myUID: string, partnerUID: string, goalID: string): ResponseMsg<null> {
+	approveGoal(myUID: string, partnerUID: string, goalID: string): ResponseMsg<void> {
 		return this.members.onMember(myUID, (member) => member.approveGoal(partnerUID, goalID));
 	}
 
-	incompleteGoal(myUID: string, partnerUID: string, goalID: string): ResponseMsg<null> {
+	incompleteGoal(myUID: string, partnerUID: string, goalID: string): ResponseMsg<void> {
 		return this.members.onMember(myUID, (member) => member.incompleteGoal(partnerUID, goalID));
 	}
 }

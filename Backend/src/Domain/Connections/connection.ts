@@ -14,7 +14,7 @@ export default class Connection {
 		return this._chatID;
 	}
 
-	sendHeart(uid: string): ResponseMsg<null> {
+	sendHeart(uid: string): ResponseMsg<void> {
 		return this._messaging.sendMessage(uid, this._chatID, '💖');
 	}
 }

@@ -12,7 +12,7 @@ export default class Goals {
 		return Object.values(this._goals);
 	}
 
-	private validateReward(reward: number): ResponseMsg<null> {
+	private validateReward(reward: number): ResponseMsg<void> {
 		if (reward < 0) {
 			return makeFail('Can not set negative points as the goal reward');
 		}
@@ -27,15 +27,15 @@ export default class Goals {
 			return makeFail('Goal can not be empty');
 		}
 		const response = this.validateReward(reward);
-		if (!response.isSuccess()) {
-			return makeFail(response.getError());
-		}
-		const newGoal = new Goal(goal, reward);
-		this._goals[newGoal.id] = newGoal;
-		return makeGood(newGoal.id);
+
+		return response.then(() => {
+			const newGoal = new Goal(goal, reward);
+			this._goals[newGoal.id] = newGoal;
+			return newGoal.id;
+		});
 	}
 
-	removeGoal(goalID: string): ResponseMsg<null> {
+	removeGoal(goalID: string): ResponseMsg<void> {
 		if (!(goalID in this._goals)) {
 			return makeFail('There is no goal corresponding to the given id');
 		}
@@ -43,16 +43,15 @@ export default class Goals {
 		return makeGood();
 	}
 
-	setReward(goalID: string, reward: number): ResponseMsg<null> {
+	setReward(goalID: string, reward: number): ResponseMsg<void> {
 		if (!(goalID in this._goals)) {
 			return makeFail('There is no goal corresponding to the given id');
 		}
 		const response = this.validateReward(reward);
-		if (!response.isSuccess()) {
-			return makeFail(response.getError());
-		}
-		this._goals[goalID].reward = reward;
-		return makeGood();
+
+		return response.then(() => {
+			this._goals[goalID].reward = reward;
+		});
 	}
 
 	onGoal<T, U = T>(goalID: string, func: (goal: Goal) => ResponseMsg<T, U>): ResponseMsg<T, U> {

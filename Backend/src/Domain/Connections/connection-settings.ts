@@ -79,19 +79,19 @@ export default class ConnectionSettings implements Parsable<ConnectionSettings, 
 		return this._couponsBank.createCoupon(content);
 	}
 
-	removeCoupon(couponId: string): ResponseMsg<null> {
+	removeCoupon(couponId: string): ResponseMsg<void> {
 		return this._couponsBank.removeCoupon(couponId);
 	}
 
-	editCoupon(couponId: string, newContent: string): ResponseMsg<null> {
+	editCoupon(couponId: string, newContent: string): ResponseMsg<void> {
 		return this._couponsBank.editCoupon(couponId, newContent);
 	}
 
-	setCouponRarity(couponID: string, rarityName: string): ResponseMsg<null> {
+	setCouponRarity(couponID: string, rarityName: string): ResponseMsg<void> {
 		return this._couponsBank.setCouponRarity(couponID, rarityName);
 	}
 
-	setRandomCouponPrice(price: number): ResponseMsg<null> {
+	setRandomCouponPrice(price: number): ResponseMsg<void> {
 		if (price < 0) {
 			return makeFail('Can not set a negative price');
 		}
@@ -108,7 +108,7 @@ export default class ConnectionSettings implements Parsable<ConnectionSettings, 
 		);
 	}
 
-	addPoints(points: number): ResponseMsg<null> {
+	addPoints(points: number): ResponseMsg<void> {
 		if (points <= 0) {
 			return makeFail('Can not send none positive number of points');
 		}
@@ -138,59 +138,44 @@ export default class ConnectionSettings implements Parsable<ConnectionSettings, 
 		return this._goals.addGoal(goal, reward);
 	}
 
-	removeGoal(goalID: string): ResponseMsg<null> {
+	removeGoal(goalID: string): ResponseMsg<void> {
 		return this._goals.removeGoal(goalID);
 	}
 
-	setGoalReward(goalID: string, reward: number): ResponseMsg<null> {
+	setGoalReward(goalID: string, reward: number): ResponseMsg<void> {
 		return this._goals.setReward(goalID, reward);
 	}
 
-	completeGoal(goalID: string): ResponseMsg<null> {
+	completeGoal(goalID: string): ResponseMsg<void> {
 		return this._goals.onGoal(goalID, (goal) => goal.complete());
 	}
 
-	approveGoal(goalID: string): ResponseMsg<null> {
+	approveGoal(goalID: string): ResponseMsg<void> {
 		const response = this._goals.onGoal(goalID, (goal) => goal.approve());
 		return response.then((reward) => {
 			this._points += reward;
-			return null;
 		});
 	}
 
-	incompleteGoal(goalID: string): ResponseMsg<null> {
+	incompleteGoal(goalID: string): ResponseMsg<void> {
 		return this._goals.onGoal(goalID, (goal) => goal.incomplete());
 	}
 
-	disableAction(action: string): ResponseMsg<null> {
+	disableAction(action: string): ResponseMsg<void> {
 		return this._actions.disableAction(action);
 	}
 
-	enableAction(action: string): ResponseMsg<null> {
+	enableAction(action: string): ResponseMsg<void> {
 		return this._actions.enableAction(action);
 	}
 
-	sendHeart(senderUID: string): ResponseMsg<null> {
+	sendHeart(senderUID: string): ResponseMsg<void> {
 		const response = this._actions.sendHeart();
 
-		// return response.then((reward) => {
-		// 	return this._connection
-		// 		.sendHeart(senderUID)
-		// 		.then(() => {
-		// 			this._points += reward;
-		// 			return null;
-		// 		})
-		// 		.getData();
-		// });
-		if (response.isSuccess()) {
-			const msgResponse = this._connection.sendHeart(senderUID);
-			if (msgResponse.isSuccess()) {
-				const reward = response.getData();
+		return response.then((reward) => {
+			return this._connection.sendHeart(senderUID).then(() => {
 				this._points += reward;
-				return makeGood();
-			}
-			return makeFail(msgResponse.getError());
-		}
-		return makeFail(response.getError());
+			});
+		});
 	}
 }
