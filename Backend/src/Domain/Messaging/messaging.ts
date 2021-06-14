@@ -73,7 +73,7 @@ class Sender {
 		if (!(chatID in this._chats)) {
 			return makeFail('You do not have any chats with the given id');
 		}
-		return makeGood(this._chats[chatID].messages);
+		return makeGood<Message, MessageData>(this._chats[chatID].messages);
 	}
 
 	sendMessage(chatID: string, content: string, senderID: string): ResponseMsg<null> {

@@ -125,7 +125,7 @@ export default class ConnectionSettings implements Parsable<ConnectionSettings, 
 		}
 
 		const response = this._couponsBank.drawCoupon();
-		if (response.isSuccess()) this._points -= this._randomCouponPrice;
+		response.then((_) => (this._points -= this._randomCouponPrice));
 
 		return response;
 	}
@@ -152,11 +152,10 @@ export default class ConnectionSettings implements Parsable<ConnectionSettings, 
 
 	approveGoal(goalID: string): ResponseMsg<null> {
 		const response = this._goals.onGoal(goalID, (goal) => goal.approve());
-		if (response.isSuccess()) {
-			this._points += response.getData();
-			return makeGood();
-		}
-		return makeFail(response.getError());
+		return response.then((reward) => {
+			this._points += reward;
+			return null;
+		});
 	}
 
 	incompleteGoal(goalID: string): ResponseMsg<null> {
@@ -173,6 +172,16 @@ export default class ConnectionSettings implements Parsable<ConnectionSettings, 
 
 	sendHeart(senderUID: string): ResponseMsg<null> {
 		const response = this._actions.sendHeart();
+
+		// return response.then((reward) => {
+		// 	return this._connection
+		// 		.sendHeart(senderUID)
+		// 		.then(() => {
+		// 			this._points += reward;
+		// 			return null;
+		// 		})
+		// 		.getData();
+		// });
 		if (response.isSuccess()) {
 			const msgResponse = this._connection.sendHeart(senderUID);
 			if (msgResponse.isSuccess()) {

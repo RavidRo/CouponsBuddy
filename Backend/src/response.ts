@@ -42,7 +42,7 @@ export interface ResponseMsg<T, U = T> extends Parsable<T, ResponseMsg<U>> {
 	isSuccess(): boolean;
 	getError(): string;
 	getData(): T;
-	// then<V, W>(func: (data: T) => ResponseMsg<V, W>): ResponseMsg<V, W>;
+	then<V>(func: (data: T) => V): ResponseMsg<V>;
 }
 
 class ResponseSuccess<T, U = T> implements ResponseMsg<T, U> {
@@ -68,6 +68,10 @@ class ResponseSuccess<T, U = T> implements ResponseMsg<T, U> {
 		const response = new ResponseSuccess<U>(parsable);
 		return response;
 	}
+
+	then<V>(func: (data: T) => V): ResponseMsg<V> {
+		return makeGood(func(this._data.getData()));
+	}
 }
 
 class ResponseFail<T, U> implements ResponseMsg<T, U> {
@@ -88,6 +92,10 @@ class ResponseFail<T, U> implements ResponseMsg<T, U> {
 	}
 	parse(): ResponseMsg<U> {
 		return new ResponseFail(this._error);
+	}
+
+	then<V>(_: (data: T) => V): ResponseMsg<V> {
+		return makeFail(this._error);
 	}
 }
 
