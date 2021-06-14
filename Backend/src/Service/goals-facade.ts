@@ -40,4 +40,16 @@ export default class GoalsFacade extends Singleton {
 			member.setGoalReward(partnerUID, goalID, reward)
 		);
 	}
+
+	completeGoal(myUID: string, partnerUID: string, goalID: string): ResponseMsg<null> {
+		return this.members.onMember(myUID, (member) => member.completeGoal(partnerUID, goalID));
+	}
+
+	approveGoal(myUID: string, partnerUID: string, goalID: string): ResponseMsg<null> {
+		return this.members.onMember(myUID, (member) => member.approveGoal(partnerUID, goalID));
+	}
+
+	incompleteGoal(myUID: string, partnerUID: string, goalID: string): ResponseMsg<null> {
+		return this.members.onMember(myUID, (member) => member.incompleteGoal(partnerUID, goalID));
+	}
 }

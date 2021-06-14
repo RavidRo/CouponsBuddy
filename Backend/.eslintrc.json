@@ -11,9 +11,9 @@
 	},
 	"plugins": ["@typescript-eslint"],
 	"rules": {
-		"indent": ["error", "tab", { "SwitchCase": 1 }],
-		"quotes": ["error", "single"],
-		"semi": ["error", "always"],
+		"indent": ["warn", "tab", { "SwitchCase": 1 }],
+		"quotes": ["warn", "single"],
+		"semi": ["warn", "always"],
 		// Why this line doesn't do any thing :(
 		"@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }]
 	}

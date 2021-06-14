@@ -22,7 +22,7 @@ export default class Invitation implements Parsable<Invitation, InvitationData> 
 	}
 
 	accept(myNickname: string): ConnectionSettings {
-		const newConnection = new Connection();
+		const newConnection = new Connection(this._toUID, this._sender.uid);
 		const mySettings = new ConnectionSettings(newConnection, this._sender.nickname);
 		const partnerSettings = new ConnectionSettings(newConnection, myNickname);
 		mySettings.setPartner(partnerSettings);

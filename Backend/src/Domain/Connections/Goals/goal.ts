@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import { Parsable, ResponseMsg } from '../../../response';
+import { makeFail, makeGood, Parsable, ResponseMsg } from '../../../response';
 import GoalData from '../../../Service/DataObjects/goal-data';
 import GoalStatus, { InProgress } from './goal-status';
 
@@ -29,7 +29,7 @@ export default class Goal implements Parsable<Goal, GoalData> {
 	}
 
 	parse(): GoalData {
-		return new GoalData(this._goal, this._reward, this._id);
+		return new GoalData(this._id, this._goal, this._reward, this._status.getStatus());
 	}
 	getData(): Goal {
 		return this;
@@ -41,7 +41,11 @@ export default class Goal implements Parsable<Goal, GoalData> {
 	incomplete(): ResponseMsg<null> {
 		return this._status.incomplete();
 	}
-	approve(): ResponseMsg<null> {
-		return this._status.approve();
+	approve(): ResponseMsg<number> {
+		const response = this._status.approve();
+		if (response.isSuccess()) {
+			return makeGood(this._reward);
+		}
+		return makeFail(response.getError());
 	}
 }

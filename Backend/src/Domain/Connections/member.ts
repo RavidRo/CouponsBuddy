@@ -198,4 +198,34 @@ export default class Member {
 			partner.setGoalReward(goalID, reward)
 		);
 	}
+
+	@validatePartner()
+	completeGoal(partnerUID: string, goalID: string): ResponseMsg<null> {
+		return this._connections[partnerUID].completeGoal(goalID);
+	}
+
+	@validatePartner()
+	approveGoal(partnerUID: string, goalID: string): ResponseMsg<null> {
+		return this._connections[partnerUID].onPartner((partner) => partner.approveGoal(goalID));
+	}
+
+	@validatePartner()
+	incompleteGoal(partnerUID: string, goalID: string): ResponseMsg<null> {
+		return this._connections[partnerUID].onPartner((partner) => partner.incompleteGoal(goalID));
+	}
+
+	@validatePartner()
+	disableAction(partnerUID: string, action: string): ResponseMsg<null> {
+		return this._connections[partnerUID].onPartner((partner) => partner.disableAction(action));
+	}
+
+	@validatePartner()
+	enableAction(partnerUID: string, action: string): ResponseMsg<null> {
+		return this._connections[partnerUID].onPartner((partner) => partner.enableAction(action));
+	}
+
+	@validatePartner()
+	sendHeart(partnerUID: string, senderUID: string): ResponseMsg<null> {
+		return this._connections[partnerUID].sendHeart(senderUID);
+	}
 }

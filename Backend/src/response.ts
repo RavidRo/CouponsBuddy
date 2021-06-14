@@ -42,6 +42,7 @@ export interface ResponseMsg<T, U = T> extends Parsable<T, ResponseMsg<U>> {
 	isSuccess(): boolean;
 	getError(): string;
 	getData(): T;
+	// then<V, W>(func: (data: T) => ResponseMsg<V, W>): ResponseMsg<V, W>;
 }
 
 class ResponseSuccess<T, U = T> implements ResponseMsg<T, U> {

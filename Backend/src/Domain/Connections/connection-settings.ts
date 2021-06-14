@@ -1,17 +1,16 @@
 import settings from '../../../settings';
 import { makeFail, makeGood, Parsable, ResponseMsg } from '../../response';
 import ConnectionData from '../../Service/DataObjects/connection-data';
-import ConnectionSettingsData from '../../Service/DataObjects/connection-settings-data';
+import Data from '../../Service/DataObjects/connection-settings-data';
 import CouponData from '../../Service/DataObjects/coupon-data';
+import Actions from './actions';
 import Connection from './connection';
 import Coupon from './Coupons/coupon';
 import CouponsBank from './Coupons/coupons-bank';
 import Goal from './Goals/goal';
 import Goals from './Goals/goals';
 
-export default class ConnectionSettings
-	implements Parsable<ConnectionSettings, ConnectionSettingsData>
-{
+export default class ConnectionSettings implements Parsable<ConnectionSettings, Data> {
 	private _partner: ConnectionSettings | null;
 	private _connection: Connection;
 	private _partnerNickname: string;
@@ -19,6 +18,7 @@ export default class ConnectionSettings
 	private _goals: Goals;
 	private _randomCouponPrice: number;
 	private _points: number;
+	private _actions: Actions;
 
 	constructor(connection: Connection, partnerNickname: string) {
 		this._partner = null;
@@ -28,6 +28,7 @@ export default class ConnectionSettings
 		this._goals = new Goals();
 		this._randomCouponPrice = settings.defaults.randomCouponPrice;
 		this._points = 0;
+		this._actions = new Actions();
 	}
 
 	get partnerNickname(): string {
@@ -53,12 +54,8 @@ export default class ConnectionSettings
 		return this._partner;
 	}
 
-	parse(): ConnectionSettingsData {
-		return new ConnectionSettingsData(
-			this._points,
-			this._randomCouponPrice,
-			this._partnerNickname
-		);
+	parse(): Data {
+		return new Data(this._points, this._randomCouponPrice, this._partnerNickname);
 	}
 
 	getData(): ConnectionSettings {
@@ -106,7 +103,9 @@ export default class ConnectionSettings
 	}
 
 	getConnection(): ResponseMsg<ConnectionData> {
-		return makeGood(new ConnectionData(this.parse(), this.partner.parse()));
+		return makeGood(
+			new ConnectionData(this.parse(), this.partner.parse(), this._connection.chatID)
+		);
 	}
 
 	addPoints(points: number): ResponseMsg<null> {
@@ -143,7 +142,46 @@ export default class ConnectionSettings
 		return this._goals.removeGoal(goalID);
 	}
 
-	setGoalReward(goalID: string, reward: number): ResponseMsg<null, null> {
-		return this._goals.onGoal(goalID, (goal) => goal.setReward(reward));
+	setGoalReward(goalID: string, reward: number): ResponseMsg<null> {
+		return this._goals.setReward(goalID, reward);
+	}
+
+	completeGoal(goalID: string): ResponseMsg<null> {
+		return this._goals.onGoal(goalID, (goal) => goal.complete());
+	}
+
+	approveGoal(goalID: string): ResponseMsg<null> {
+		const response = this._goals.onGoal(goalID, (goal) => goal.approve());
+		if (response.isSuccess()) {
+			this._points += response.getData();
+			return makeGood();
+		}
+		return makeFail(response.getError());
+	}
+
+	incompleteGoal(goalID: string): ResponseMsg<null> {
+		return this._goals.onGoal(goalID, (goal) => goal.incomplete());
+	}
+
+	disableAction(action: string): ResponseMsg<null> {
+		return this._actions.disableAction(action);
+	}
+
+	enableAction(action: string): ResponseMsg<null> {
+		return this._actions.enableAction(action);
+	}
+
+	sendHeart(senderUID: string): ResponseMsg<null> {
+		const response = this._actions.sendHeart();
+		if (response.isSuccess()) {
+			const msgResponse = this._connection.sendHeart(senderUID);
+			if (msgResponse.isSuccess()) {
+				const reward = response.getData();
+				this._points += reward;
+				return makeGood();
+			}
+			return makeFail(msgResponse.getError());
+		}
+		return makeFail(response.getError());
 	}
 }

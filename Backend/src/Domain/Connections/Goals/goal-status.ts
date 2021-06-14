@@ -16,11 +16,15 @@ export default abstract class GoalStatus {
 	abstract complete(): ResponseMsg<null>;
 	abstract incomplete(): ResponseMsg<null>;
 	abstract approve(): ResponseMsg<null>;
+	abstract getStatus(): string;
 }
 
 export class InProgress extends GoalStatus {
+	getStatus(): string {
+		return 'In Progress';
+	}
 	complete(): ResponseMsg<null> {
-		return this.changeStatus(Complete);
+		return this.changeStatus(Completed);
 	}
 	incomplete(): ResponseMsg<null> {
 		return makeFail('This goal is already in progress');
@@ -30,7 +34,10 @@ export class InProgress extends GoalStatus {
 	}
 }
 
-export class Complete extends GoalStatus {
+export class Completed extends GoalStatus {
+	getStatus(): string {
+		return 'Completed';
+	}
 	complete(): ResponseMsg<null> {
 		return makeFail('This goal is already completed');
 	}
@@ -43,6 +50,9 @@ export class Complete extends GoalStatus {
 }
 
 export class Approved extends GoalStatus {
+	getStatus(): string {
+		return 'Approved';
+	}
 	complete(): ResponseMsg<null> {
 		return makeFail('This goal is already completed');
 	}

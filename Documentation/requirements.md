@@ -33,10 +33,10 @@
 2. Members can choose a goal from the example goals to add to a partner's goal list.
 3. Members can remove a goal in a partner's goal list.
 4. Members can set the points award for a goal in a partner's goal list.
-5. Members can set a goal as completed.
+5. Members can set their goals as completed.
 6. Members can accept a partner's goal's completion.
 7. When a goal's completion was accepted the goal's member will earn it's points.
-8. Members can set a partner's goal as completed.
+8. Members can set a partner's goal as approved.
 
 ### 5. Actions
 

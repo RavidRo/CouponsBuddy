@@ -42,7 +42,9 @@ describe('Create goals', () => {
 			.addGoalToPartner(uid1, uid2, 'Take me for an ice cream date', 20)
 			.getData();
 		const myGoals = goals.getMyGoals(uid2, uid1).getData();
-		expect(myGoals).toContainEqual(new GoalData('Take me for an ice cream date', 20, id));
+		expect(myGoals).toContainEqual(
+			new GoalData(id, 'Take me for an ice cream date', 20, 'In Progress')
+		);
 	});
 
 	test('Creating a goal fails if goal is an empty string', () => {
@@ -132,7 +134,7 @@ describe('Set goals rewards', () => {
 		goals.setGoalReward(uid1, uid2, id, 25);
 		const myGoals = goals.getMyGoals(uid2, uid1).getData();
 
-		expect(myGoals).toContainEqual(new GoalData('Some goal', 25, id));
+		expect(myGoals).toContainEqual(new GoalData(id, 'Some goal', 25, 'In Progress'));
 	});
 
 	test('Set goal reward fails when user does not exist', () => {
@@ -178,5 +180,224 @@ describe('Set goals rewards', () => {
 		const response = goals.setGoalReward(uid1, uid2, id, 25.45);
 
 		expect(response.isSuccess()).toBeFalsy();
+	});
+});
+
+describe('Set a goal as completed', () => {
+	test('Complete a goal successfully', () => {
+		const [uid1, uid2] = connection();
+		const id = goals.addGoalToPartner(uid1, uid2, 'Some goal', 15).getData();
+
+		const response = goals.completeGoal(uid2, uid1, id);
+
+		expect(response.isSuccess()).toBeTruthy();
+	});
+
+	test('Complete a goal fails when user does not exist', () => {
+		const [uid1, uid2] = connection();
+		const id = goals.addGoalToPartner(uid1, uid2, 'Some goal', 15).getData();
+
+		const response = goals.completeGoal('dasdsa', uid1, id);
+
+		expect(response.isSuccess()).toBeFalsy();
+	});
+
+	test('Complete a goal fails when partner does not exist', () => {
+		const [uid1, uid2] = connection();
+		const id = goals.addGoalToPartner(uid1, uid2, 'Some goal', 15).getData();
+
+		const response = goals.completeGoal(uid2, 'fdsa', id);
+
+		expect(response.isSuccess()).toBeFalsy();
+	});
+
+	test('Complete a goal fails when goal does not exist', () => {
+		const [uid1, uid2] = connection();
+		goals.addGoalToPartner(uid1, uid2, 'Some goal', 15).getData();
+
+		const response = goals.completeGoal(uid2, uid1, 'id');
+
+		expect(response.isSuccess()).toBeFalsy();
+	});
+
+	test('Complete a goal fails when goal is already completed', () => {
+		const [uid1, uid2] = connection();
+		const id = goals.addGoalToPartner(uid1, uid2, 'Some goal', 15).getData();
+
+		goals.completeGoal(uid2, uid1, id);
+		const response = goals.completeGoal(uid2, uid1, id);
+
+		expect(response.isSuccess()).toBeFalsy();
+	});
+
+	test('Complete a goal fails when goal is already approved', () => {
+		const [uid1, uid2] = connection();
+		const id = goals.addGoalToPartner(uid1, uid2, 'Some goal', 15).getData();
+
+		goals.approveGoal(uid1, uid2, id);
+		const response = goals.completeGoal(uid2, uid1, id);
+
+		expect(response.isSuccess()).toBeFalsy();
+	});
+
+	test('Completing a goal successfully changes the goals status', () => {
+		const [uid1, uid2] = connection();
+		const id = goals.addGoalToPartner(uid1, uid2, 'Some goal', 15).getData();
+
+		goals.completeGoal(uid2, uid1, id);
+		const myGoals = goals.getMyGoals(uid2, uid1).getData();
+
+		expect(myGoals).toContainEqual(new GoalData(id, 'Some goal', 15, 'Completed'));
+	});
+});
+
+describe('Set a goal as approved', () => {
+	test('Approve a goal successfully', () => {
+		const [uid1, uid2] = connection();
+		const id = goals.addGoalToPartner(uid1, uid2, 'Some goal', 15).getData();
+
+		const response = goals.approveGoal(uid1, uid2, id);
+
+		expect(response.isSuccess()).toBeTruthy();
+	});
+
+	test('Approving a goal fails when user does not exist', () => {
+		const [uid1, uid2] = connection();
+		const id = goals.addGoalToPartner(uid1, uid2, 'Some goal', 15).getData();
+
+		const response = goals.approveGoal('dasdsa', uid2, id);
+
+		expect(response.isSuccess()).toBeFalsy();
+	});
+
+	test('Approving a goal fails when partner does not exist', () => {
+		const [uid1, uid2] = connection();
+		const id = goals.addGoalToPartner(uid1, uid2, 'Some goal', 15).getData();
+
+		const response = goals.approveGoal(uid1, 'fdsa', id);
+
+		expect(response.isSuccess()).toBeFalsy();
+	});
+
+	test('Approving a goal fails when goal does not exist', () => {
+		const [uid1, uid2] = connection();
+		goals.addGoalToPartner(uid1, uid2, 'Some goal', 15).getData();
+
+		const response = goals.approveGoal(uid1, uid2, 'id');
+
+		expect(response.isSuccess()).toBeFalsy();
+	});
+
+	test('Approving a goal fails when goal is already approved', () => {
+		const [uid1, uid2] = connection();
+		const id = goals.addGoalToPartner(uid1, uid2, 'Some goal', 15).getData();
+
+		goals.approveGoal(uid1, uid2, id);
+		const response = goals.approveGoal(uid1, uid2, id);
+
+		expect(response.isSuccess()).toBeFalsy();
+	});
+
+	test('Approving a goal will succeed when goal is completed', () => {
+		const [uid1, uid2] = connection();
+		const id = goals.addGoalToPartner(uid1, uid2, 'Some goal', 15).getData();
+
+		goals.completeGoal(uid2, uid1, id);
+		const response = goals.approveGoal(uid1, uid2, id);
+
+		expect(response.isSuccess()).toBeTruthy();
+	});
+
+	test('Approving a goal successfully changes the goals status', () => {
+		const [uid1, uid2] = connection();
+		const id = goals.addGoalToPartner(uid1, uid2, 'Some goal', 15).getData();
+
+		goals.approveGoal(uid1, uid2, id);
+		const myGoals = goals.getMyGoals(uid2, uid1).getData();
+
+		expect(myGoals).toContainEqual(new GoalData(id, 'Some goal', 15, 'Approved'));
+	});
+
+	test('Approving a goal adds its points', () => {
+		const [uid1, uid2] = connection();
+		const id = goals.addGoalToPartner(uid1, uid2, 'Some goal', 15).getData();
+
+		const pointsPrev = partners.getConnection(uid2, uid1).getData().me.points;
+		goals.approveGoal(uid1, uid2, id);
+		const pointsAfter = partners.getConnection(uid2, uid1).getData().me.points;
+
+		expect(pointsPrev + 15).toBe(pointsAfter);
+	});
+});
+
+describe('Set a goal as incomplete', () => {
+	test('Incomplete a goal successfully', () => {
+		const [uid1, uid2] = connection();
+		const id = goals.addGoalToPartner(uid1, uid2, 'Some goal', 15).getData();
+
+		goals.completeGoal(uid2, uid1, id);
+		const response = goals.incompleteGoal(uid1, uid2, id);
+
+		expect(response.isSuccess()).toBeTruthy();
+	});
+
+	test('Incomplete a goal fails when user does not exist', () => {
+		const [uid1, uid2] = connection();
+		const id = goals.addGoalToPartner(uid1, uid2, 'Some goal', 15).getData();
+
+		goals.completeGoal(uid2, uid1, id);
+		const response = goals.incompleteGoal('dasdsa', uid2, id);
+
+		expect(response.isSuccess()).toBeFalsy();
+	});
+
+	test('Incomplete a goal fails when partner does not exist', () => {
+		const [uid1, uid2] = connection();
+		const id = goals.addGoalToPartner(uid1, uid2, 'Some goal', 15).getData();
+
+		goals.completeGoal(uid2, uid1, id);
+		const response = goals.incompleteGoal(uid1, 'fdsa', id);
+
+		expect(response.isSuccess()).toBeFalsy();
+	});
+
+	test('Incomplete a goal fails when goal does not exist', () => {
+		const [uid1, uid2] = connection();
+		const id = goals.addGoalToPartner(uid1, uid2, 'Some goal', 15).getData();
+
+		goals.completeGoal(uid2, uid1, id);
+		const response = goals.incompleteGoal(uid1, uid2, 'id');
+
+		expect(response.isSuccess()).toBeFalsy();
+	});
+
+	test('Incomplete a goal fails when goal is already inprogress', () => {
+		const [uid1, uid2] = connection();
+		const id = goals.addGoalToPartner(uid1, uid2, 'Some goal', 15).getData();
+
+		const response = goals.incompleteGoal(uid1, uid2, id);
+
+		expect(response.isSuccess()).toBeFalsy();
+	});
+
+	test('Incomplete a goal fails when goal is approved', () => {
+		const [uid1, uid2] = connection();
+		const id = goals.addGoalToPartner(uid1, uid2, 'Some goal', 15).getData();
+
+		goals.approveGoal(uid1, uid2, id);
+		const response = goals.incompleteGoal(uid1, uid2, id);
+
+		expect(response.isSuccess()).toBeFalsy();
+	});
+
+	test('Incomplete a goal successfully changes the goals status', () => {
+		const [uid1, uid2] = connection();
+		const id = goals.addGoalToPartner(uid1, uid2, 'Some goal', 15).getData();
+
+		goals.completeGoal(uid2, uid1, id);
+		goals.incompleteGoal(uid1, uid2, id);
+		const myGoals = goals.getMyGoals(uid2, uid1).getData();
+
+		expect(myGoals).toContainEqual(new GoalData(id, 'Some goal', 15, 'In Progress'));
 	});
 });
