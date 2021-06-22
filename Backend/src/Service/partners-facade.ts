@@ -1,4 +1,3 @@
-import { Authentication } from '../Domain/Authentication/authentication';
 import Members from '../Domain/Connections/members';
 import { ResponseMsg } from '../response';
 import Singleton from '../singleton';
@@ -7,12 +6,10 @@ import InvitationData from './DataObjects/invitation-data';
 import PartnerData from './DataObjects/partner-data';
 
 export default class PartnersFacade extends Singleton {
-	private auth: Authentication;
 	private members: Members;
 
 	constructor() {
 		super();
-		this.auth = new Authentication();
 		this.members = new Members();
 	}
 

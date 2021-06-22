@@ -68,6 +68,8 @@ export default class CouponsFacade extends Singleton {
 	}
 
 	sendCoupon(myUID: string, partnerUID: string, content: string): ResponseMsg<string> {
-		return this.members.onMember(myUID, (member) => member.sendCoupon(partnerUID, content));
+		return this.members.onMember(myUID, (member) =>
+			member.sendCoupon(partnerUID, myUID, content)
+		);
 	}
 }

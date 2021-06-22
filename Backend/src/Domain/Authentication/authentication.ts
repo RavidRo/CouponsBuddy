@@ -12,17 +12,21 @@ export class Authentication extends Singleton {
 	}
 
 	// Authenticates the given token and returns the user uid
-	authenticate(authToken: string): Promise<ResponseMsg<string>> {
-		return this.firebase.auth
-			.verifyIdToken(authToken)
-			.then((idToken) => makeGood(idToken.uid))
-			.catch((error) => makeFail(error));
+	async authenticate(authToken: string): Promise<ResponseMsg<string>> {
+		try {
+			const idToken = await this.firebase.auth.verifyIdToken(authToken);
+			return makeGood(idToken.uid);
+		} catch (error) {
+			return makeFail(error);
+		}
 	}
 
-	getUserByPhoneNumber(phoneNumber: string): Promise<ResponseMsg<string>> {
-		return this.firebase.auth
-			.getUserByPhoneNumber(phoneNumber)
-			.then((userRecord) => makeGood(userRecord.uid))
-			.catch((error) => makeFail(error));
+	async getUserByPhoneNumber(phoneNumber: string): Promise<ResponseMsg<string>> {
+		try {
+			const userRecord = await this.firebase.auth.getUserByPhoneNumber(phoneNumber);
+			return makeGood(userRecord.uid);
+		} catch (error) {
+			return makeFail(error);
+		}
 	}
 }

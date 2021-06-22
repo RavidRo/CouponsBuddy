@@ -1,5 +1,4 @@
 import dotenv from 'dotenv';
-import settings from '../settings';
 
 const result = dotenv.config();
 if (result.error) {
@@ -8,8 +7,6 @@ if (result.error) {
 
 // Shorter name
 const vars = process.env;
-
-const PORT = settings.port;
 
 // Firebase variables
 const firebase = {
@@ -60,7 +57,8 @@ if (
 
 // End result
 export default {
-	PORT,
+	TESTING: process.env.NODE_ENV === 'test',
+	PORT: process.env.PORT,
 	FIREBASE: {
 		type,
 		project_id,

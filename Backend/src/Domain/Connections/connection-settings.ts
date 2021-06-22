@@ -24,10 +24,10 @@ export default class ConnectionSettings implements Parsable<ConnectionSettings, 
 		this._partner = null;
 		this._connection = connection;
 		this._partnerNickname = partnerNickname;
-		this._couponsBank = new CouponsBank();
-		this._goals = new Goals();
 		this._randomCouponPrice = settings.defaults.randomCouponPrice;
 		this._points = 0;
+		this._couponsBank = new CouponsBank();
+		this._goals = new Goals();
 		this._actions = new Actions();
 	}
 
@@ -55,7 +55,12 @@ export default class ConnectionSettings implements Parsable<ConnectionSettings, 
 	}
 
 	parse(): Data {
-		return new Data(this._points, this._randomCouponPrice, this._partnerNickname);
+		return new Data(
+			this._points,
+			this._randomCouponPrice,
+			this._partnerNickname,
+			this._actions.parse()
+		);
 	}
 
 	getData(): ConnectionSettings {
@@ -130,6 +135,13 @@ export default class ConnectionSettings implements Parsable<ConnectionSettings, 
 		return response;
 	}
 
+	sendCoupon(senderUID: string, content: string): ResponseMsg<string> {
+		return this.partner.earnCoupon(content).then((couponID) => {
+			this._connection.sendCoupon(senderUID, content);
+			return couponID;
+		});
+	}
+
 	earnCoupon(content: string): ResponseMsg<string> {
 		return this._couponsBank.earnCoupon(content);
 	}
@@ -177,5 +189,53 @@ export default class ConnectionSettings implements Parsable<ConnectionSettings, 
 				this._points += reward;
 			});
 		});
+	}
+
+	sendMessage(senderUID: string, content: string): ResponseMsg<void> {
+		const response = this._actions.sendMessage();
+
+		return response.then((reward) => {
+			return this._connection.sendMessage(senderUID, content).then(() => {
+				this._points += reward;
+			});
+		});
+	}
+
+	sendPicture(senderUID: string, pictureURI: string): ResponseMsg<void> {
+		const response = this._actions.sendPicture();
+
+		return response.then((reward) => {
+			return this._connection.sendPicture(senderUID, pictureURI).then(() => {
+				this._points += reward;
+			});
+		});
+	}
+
+	sendVideo(senderUID: string, videoURI: string): ResponseMsg<void> {
+		const response = this._actions.sendVideo();
+
+		return response.then((reward) => {
+			return this._connection.sendVideo(senderUID, videoURI).then(() => {
+				this._points += reward;
+			});
+		});
+	}
+
+	sendCouponAction(senderUID: string, content: string): ResponseMsg<void> {
+		const response = this._actions.sendCoupon();
+
+		return response.then((reward) => {
+			return this.sendCoupon(senderUID, content).then(() => {
+				this._points += reward;
+			});
+		});
+	}
+
+	setActionReward(actionName: string, reward: number): ResponseMsg<void> {
+		return this._actions.setReward(actionName, reward);
+	}
+
+	setTimer(newTimer: number): ResponseMsg<void> {
+		return this._actions.setTimer(newTimer);
 	}
 }

@@ -14,7 +14,23 @@ export default class Connection {
 		return this._chatID;
 	}
 
-	sendHeart(uid: string): ResponseMsg<void> {
-		return this._messaging.sendMessage(uid, this._chatID, '💖');
+	sendHeart(senderUID: string): ResponseMsg<void> {
+		return this._messaging.sendMessage(senderUID, this._chatID, '💖');
+	}
+
+	sendMessage(senderUID: string, content: string): ResponseMsg<void> {
+		return this._messaging.sendMessage(senderUID, this._chatID, content);
+	}
+
+	sendPicture(senderUID: string, pictureURI: string): ResponseMsg<void> {
+		return this._messaging.sendMessage(senderUID, this._chatID, '', pictureURI);
+	}
+
+	sendVideo(senderUID: string, videoURI: string): ResponseMsg<void> {
+		return this._messaging.sendMessage(senderUID, this._chatID, '', videoURI);
+	}
+
+	sendCoupon(senderUID: string, content: string): ResponseMsg<void> {
+		return this._messaging.sendMessage(senderUID, this._chatID, content);
 	}
 }

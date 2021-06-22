@@ -47,12 +47,11 @@ export interface ResponseMsg<T, U = T> extends Parsable<T, ResponseMsg<U>> {
 
 function isResponse<T, U = T>(object: unknown): object is ResponseMsg<T, U> {
 	const response = object as ResponseMsg<T, U>;
-	const { isSuccess, getError, getData, then } = response;
 	return (
-		isSuccess !== undefined &&
-		getError !== undefined &&
-		getData !== undefined &&
-		then !== undefined
+		response?.isSuccess !== undefined &&
+		response?.getError !== undefined &&
+		response?.getData !== undefined &&
+		response?.then !== undefined
 	);
 }
 

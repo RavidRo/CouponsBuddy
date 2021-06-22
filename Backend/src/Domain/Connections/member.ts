@@ -170,8 +170,8 @@ export default class Member {
 	}
 
 	@validatePartner()
-	sendCoupon(partnerUID: string, content: string): ResponseMsg<string> {
-		return this._connections[partnerUID].onPartner((partner) => partner.earnCoupon(content));
+	sendCoupon(partnerUID: string, senderUID: string, content: string): ResponseMsg<string> {
+		return this._connections[partnerUID].sendCoupon(senderUID, content);
 	}
 
 	@validatePartner()
@@ -227,5 +227,41 @@ export default class Member {
 	@validatePartner()
 	sendHeart(partnerUID: string, senderUID: string): ResponseMsg<void> {
 		return this._connections[partnerUID].sendHeart(senderUID);
+	}
+
+	@validatePartner()
+	sendMessage(partnerUID: string, senderUID: string, content: string): ResponseMsg<void> {
+		return this._connections[partnerUID].sendMessage(senderUID, content);
+	}
+
+	@validatePartner()
+	sendPicture(partnerUID: string, senderUID: string, pictureURI: string): ResponseMsg<void> {
+		return this._connections[partnerUID].sendPicture(senderUID, pictureURI);
+	}
+
+	@validatePartner()
+	sendVideo(partnerUID: string, senderUID: string, videoURI: string): ResponseMsg<void> {
+		return this._connections[partnerUID].sendVideo(senderUID, videoURI);
+	}
+
+	@validatePartner()
+	sendCouponAction(
+		partnerUID: string,
+		senderUID: string,
+		content: string
+	): ResponseMsg<void, void> {
+		return this._connections[partnerUID].sendCouponAction(senderUID, content);
+	}
+
+	@validatePartner()
+	setActionReward(partnerUID: string, actionName: string, reward: number): ResponseMsg<void> {
+		return this._connections[partnerUID].onPartner((partner) =>
+			partner.setActionReward(actionName, reward)
+		);
+	}
+
+	@validatePartner()
+	setPartnerTimer(partnerUID: string, newTimer: number): ResponseMsg<void, void> {
+		return this._connections[partnerUID].onPartner((partner) => partner.setTimer(newTimer));
 	}
 }

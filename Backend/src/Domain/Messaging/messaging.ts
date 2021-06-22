@@ -6,13 +6,15 @@ import Singleton from '../../singleton';
 class Message implements Parsable<Message, MessageData> {
 	private _content: string;
 	private _senderID: string;
+	private _attachedFileURI?: string;
 
-	constructor(content: string, senderID: string) {
+	constructor(content: string, senderID: string, attachedFileURI?: string) {
 		this._content = content;
 		this._senderID = senderID;
+		this._attachedFileURI = attachedFileURI;
 	}
 	parse(): MessageData {
-		return new MessageData(this._content, this._senderID);
+		return new MessageData(this._content, this._senderID, this._attachedFileURI);
 	}
 	getData(): Message {
 		return this;
@@ -36,8 +38,11 @@ class Chat {
 		return this._messages;
 	}
 
-	sendMessage(content: string, senderID: string): ResponseMsg<void> {
-		this._messages.push(new Message(content, senderID));
+	sendMessage(content: string, senderID: string, attachedFileURI?: string): ResponseMsg<void> {
+		if (content.length === 0 && !attachedFileURI) {
+			return makeFail('Message must contain some content');
+		}
+		this._messages.push(new Message(content, senderID, attachedFileURI));
 		return makeGood();
 	}
 }
@@ -53,8 +58,8 @@ class ChatState {
 		return this._chat.messages;
 	}
 
-	sendMessage(content: string, senderID: string): ResponseMsg<void> {
-		return this._chat.sendMessage(content, senderID);
+	sendMessage(content: string, senderID: string, attachedFileURI?: string): ResponseMsg<void> {
+		return this._chat.sendMessage(content, senderID, attachedFileURI);
 	}
 }
 
@@ -76,11 +81,16 @@ class Sender {
 		return makeGood<Message, MessageData>(this._chats[chatID].messages);
 	}
 
-	sendMessage(chatID: string, content: string, senderID: string): ResponseMsg<void> {
+	sendMessage(
+		chatID: string,
+		content: string,
+		senderID: string,
+		attachedFileURI?: string
+	): ResponseMsg<void> {
 		if (!(chatID in this._chats)) {
 			return makeFail('You do not have any chats with the given id');
 		}
-		return this._chats[chatID].sendMessage(content, senderID);
+		return this._chats[chatID].sendMessage(content, senderID, attachedFileURI);
 	}
 }
 
@@ -114,8 +124,13 @@ export default class Messaging extends Singleton {
 		return this._senders[myID].getMessages(chatID).parse();
 	}
 
-	sendMessage(uid: string, chatID: string, content: string): ResponseMsg<void> {
+	sendMessage(
+		uid: string,
+		chatID: string,
+		content: string,
+		attachedFileURI?: string
+	): ResponseMsg<void> {
 		this.loadSender(uid);
-		return this._senders[uid].sendMessage(chatID, content, uid);
+		return this._senders[uid].sendMessage(chatID, content, uid, attachedFileURI);
 	}
 }
