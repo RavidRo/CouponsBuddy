@@ -1,4 +1,5 @@
 import { Response, Request, NextFunction } from 'express';
+import { makeGood, ResponseMsg } from '../response';
 import Controller, { Method } from './Controller';
 
 export default class AuthController extends Controller {
@@ -17,13 +18,14 @@ export default class AuthController extends Controller {
 		super();
 	}
 
-	async handleLogin(req: Request, res: Response, next: NextFunction): Promise<void> {
+	handleLogin(req: Request, res: Response, next: NextFunction): ResponseMsg<string> {
 		try {
 			const { username, password } = req.body; // Get credentials from client
 			console.log(username, password, res, next);
 		} catch (e) {
 			// Handle error
 		}
+		return makeGood('Hola');
 	}
 	// Other handlers...
 }

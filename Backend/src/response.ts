@@ -41,6 +41,7 @@ class ArrParsable<V, U> implements Parsable<V[], U[]> {
 export interface ResponseMsg<T, U = T> extends Parsable<T, ResponseMsg<U>> {
 	isSuccess(): boolean;
 	getError(): string;
+	getStatusCode(): number;
 	getData(): T;
 	then<V>(func: (data: T) => V | ResponseMsg<V>): ResponseMsg<V>;
 }
@@ -69,6 +70,11 @@ class ResponseSuccess<T, U = T> implements ResponseMsg<T, U> {
 	getError(): string {
 		return 'No error';
 	}
+
+	getStatusCode(): number {
+		return 200;
+	}
+
 	getData(): T {
 		return this._data.getData();
 	}
@@ -88,11 +94,17 @@ class ResponseSuccess<T, U = T> implements ResponseMsg<T, U> {
 	}
 }
 
-class ResponseFail implements ResponseMsg<unknown, unknown> {
+class ResponseFail implements ResponseMsg<unknown> {
 	private _error: string;
+	private _statusCode: number;
 
-	constructor(error: string) {
+	// https://en.wikipedia.org/wiki/HTTP_403
+	// Forbidden error code
+	private static DEFAULT_ERROR_CODE = 403;
+
+	constructor(error: string, statusCode = ResponseFail.DEFAULT_ERROR_CODE) {
 		this._error = error;
+		this._statusCode = statusCode;
 	}
 
 	isSuccess(): boolean {
@@ -100,6 +112,9 @@ class ResponseFail implements ResponseMsg<unknown, unknown> {
 	}
 	getError(): string {
 		return this._error;
+	}
+	getStatusCode(): number {
+		return this._statusCode;
 	}
 	getData(): never {
 		throw new Error('Failed response does not have data');
@@ -150,6 +165,6 @@ export function makeGood<T, U>(
 	return makeGoodData(data);
 }
 
-export const makeFail = <T, U>(error: string): ResponseMsg<T, U> => {
-	return new ResponseFail(error);
+export const makeFail = <T, U>(error: string, statusCode?: number): ResponseMsg<T, U> => {
+	return new ResponseFail(error, statusCode);
 };
