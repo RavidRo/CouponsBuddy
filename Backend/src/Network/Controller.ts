@@ -1,5 +1,5 @@
 import { Response, Request, NextFunction, Router } from 'express';
-import { ResponseMsg } from '../response';
+import { makeFail, ResponseMsg } from '../response';
 
 // HTTP methods
 export enum Method {
@@ -32,18 +32,20 @@ export default abstract class Controller {
 			for (const mw of route.localMiddleware) {
 				this.router.use(route.path, mw);
 			}
+
+			const wrappedHandler = this.handlerWrapper(route.handler);
 			switch (route.method) {
 				case 'GET':
-					this.router.get(route.path, route.handler);
+					this.router.get(route.path, wrappedHandler);
 					break;
 				case 'POST':
-					this.router.post(route.path, route.handler);
+					this.router.post(route.path, wrappedHandler);
 					break;
 				case 'PUT':
-					this.router.put(route.path, route.handler);
+					this.router.put(route.path, wrappedHandler);
 					break;
 				case 'DELETE':
-					this.router.delete(route.path, route.handler);
+					this.router.delete(route.path, wrappedHandler);
 					break;
 				default:
 					throw new Error(
@@ -55,7 +57,7 @@ export default abstract class Controller {
 		return this.router;
 	};
 
-	handlerWrapper(func: Handler): HandlerWarper {
+	private handlerWrapper(func: Handler): HandlerWarper {
 		return function (req: Request, res: Response, next: NextFunction): void | Promise<void> {
 			try {
 				const response = func(req, res, next);
@@ -71,5 +73,16 @@ export default abstract class Controller {
 				res.status(500);
 			}
 		};
+	}
+
+	protected validateArgs<T, U, F extends (...args: never[]) => ResponseMsg<T, U>>(
+		func: F,
+		...args: Parameters<F>
+	): ResponseMsg<T, U> {
+		const badRequest = args.some((arg) => arg === undefined);
+		if (badRequest) {
+			return makeFail('Missing required parameter', 400);
+		}
+		return func(...args);
 	}
 }
