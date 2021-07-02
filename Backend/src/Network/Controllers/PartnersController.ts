@@ -1,39 +1,63 @@
 import { Request } from 'express';
-import { ResponseMsg } from '../response';
-import ConnectionData from '../Service/DataObjects/connection-data';
-import InvitationData from '../Service/DataObjects/invitation-data';
-import PartnerData from '../Service/DataObjects/partner-data';
-import PartnersFacade from '../Service/partners-facade';
-import Controller, { Method } from './Controller';
-import { authenticate } from './Middleware';
+import { ResponseMsg } from '../../response';
+import ConnectionData from '../../Service/DataObjects/connection-data';
+import InvitationData from '../../Service/DataObjects/invitation-data';
+import PartnerData from '../../Service/DataObjects/partner-data';
+import PartnersFacade from '../../Service/partners-facade';
+import Controller, { Method } from '../Controller';
+import { authenticate } from '../Middleware';
 
-export default class AuthController extends Controller {
+export default class PartnersController extends Controller {
 	private partners: PartnersFacade;
 
 	path = '/partners'; // The path on which this.routes will be mapped
 	routes = [
 		{
-			path: '/invite', // Will become /auth/login
+			path: '/invite',
 			method: Method.POST,
 			handler: this.invite,
 			localMiddleware: [authenticate],
 		},
 		{
-			path: '/accept', // Will become /auth/login
+			path: '/accept',
 			method: Method.POST,
 			handler: this.acceptInvitation,
 			localMiddleware: [authenticate],
 		},
 		{
-			path: '/leave', // Will become /auth/login
+			path: '/leave',
 			method: Method.POST,
 			handler: this.leavePartner,
 			localMiddleware: [authenticate],
 		},
 		{
-			path: '/invitations', // Will become /auth/login
+			path: '/invitations',
 			method: Method.GET,
 			handler: this.getInvitations,
+			localMiddleware: [authenticate],
+		},
+		{
+			path: '/partners',
+			method: Method.GET,
+			handler: this.getPartners,
+			localMiddleware: [authenticate],
+		},
+		{
+			path: '/reject',
+			method: Method.POST,
+			handler: this.rejectInvitation,
+			localMiddleware: [authenticate],
+		},
+		{
+			path: '/connection',
+			method: Method.GET,
+			handler: this.getConnection,
+			localMiddleware: [authenticate],
+		},
+		{
+			path: '/send-points',
+			method: Method.POST,
+			handler: this.sendPoints,
 			localMiddleware: [authenticate],
 		},
 	];

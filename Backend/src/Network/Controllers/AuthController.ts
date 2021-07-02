@@ -1,6 +1,6 @@
 import { Response, Request, NextFunction } from 'express';
-import { makeGood, ResponseMsg } from '../response';
-import Controller, { Method } from './Controller';
+import { makeGood, ResponseMsg } from '../../response';
+import Controller, { Method } from '../Controller';
 
 export default class AuthController extends Controller {
 	path = '/auth'; // The path on which this.routes will be mapped

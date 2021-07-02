@@ -2,14 +2,14 @@ import express, { RequestHandler } from 'express';
 
 import config from './config';
 
-import AuthController from './Network/AuthController';
 import Controller from './Network/controller';
 import Server from './Network/Server';
+import PartnersController from './Network/Controllers/PartnersController';
 
 const app = express();
 const server = new Server(app, config.PORT);
 
-const controllers: Array<Controller> = [new AuthController()];
+const controllers: Array<Controller> = [new PartnersController()];
 
 const globalMiddleware: Array<RequestHandler> = [];
 

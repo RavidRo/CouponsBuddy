@@ -55,10 +55,18 @@ if (
 	throw new Error('environment missing a firebase variable');
 }
 
+if (process.env.PORT === undefined) {
+	throw new Error('environment missing a port variable');
+}
+const port = +process.env.PORT;
+if (isNaN(port) || Number.isInteger(port)) {
+	throw new Error('port must be an integer');
+}
+
 // End result
 export default {
 	TESTING: process.env.NODE_ENV === 'test',
-	PORT: process.env.PORT,
+	PORT: port,
 	FIREBASE: {
 		type,
 		project_id,
