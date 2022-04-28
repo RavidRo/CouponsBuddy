@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { $auth } = useNuxtApp();
 const count = ref(0);
 </script>
 

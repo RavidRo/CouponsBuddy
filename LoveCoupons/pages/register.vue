@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { signInWithEmailAndPassword } from '@firebase/auth';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 
 const email = ref('');
 const password = ref('');
 
 const onSubmit = (_e: Event) => {
 	const { $auth } = useNuxtApp();
-	signInWithEmailAndPassword($auth, email.value, password.value)
+	createUserWithEmailAndPassword($auth, email.value, password.value)
 		.then((userCredential) => {
 			// Signed in
 			const user = userCredential.user;
@@ -22,7 +22,7 @@ const onSubmit = (_e: Event) => {
 
 <template>
 	<div>
-		<h1>Login</h1>
+		<h1>Register</h1>
 		<form @submit.prevent="onSubmit">
 			<p>Email is: {{ email }}</p>
 			<input type="email" autocomplete="email" required v-model="email" placeholder="Email" />
@@ -33,7 +33,7 @@ const onSubmit = (_e: Event) => {
 				placeholder="Password"
 				v-model="password"
 			/>
-			<button id="sign-in-recaptcha" type="submit">Sign In</button>
+			<button id="sign-in-recaptcha" type="submit">Register</button>
 		</form>
 	</div>
 </template>

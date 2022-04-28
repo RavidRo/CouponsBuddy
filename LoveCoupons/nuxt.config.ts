@@ -7,5 +7,12 @@ export default defineNuxtConfig({
 		strict: true,
 		// typeCheck: true,
 	},
-	css: ['@/assets/css/styles.css'],
+	css: ['~/assets/css/main.css'],
+	// vite: {
+	// 	css: {
+	// 		modules: {
+	// 			scopeBehaviour: 'global',
+	// 		},
+	// 	},
+	// },
 });

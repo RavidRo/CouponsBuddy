@@ -1,6 +1,8 @@
 <template>
 	<div>
-		<h1>Welcome To Coupons Buddies</h1>
+		<ClientOnly>
+			<HomeTitle />
+		</ClientOnly>
 		<ButtonCounter />
 	</div>
 </template>

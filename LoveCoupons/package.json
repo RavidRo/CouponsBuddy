@@ -1,12 +1,19 @@
 {
-  "private": true,
-  "scripts": {
-    "build": "nuxt build",
-    "dev": "nuxt dev",
-    "generate": "nuxt generate",
-    "preview": "nuxt preview"
-  },
-  "devDependencies": {
-    "nuxt": "3.0.0-rc.1"
-  }
+	"private": true,
+	"scripts": {
+		"build": "nuxt build",
+		"dev": "nuxt dev",
+		"emulate": "firebase emulators:start --only auth",
+		"generate": "nuxt generate",
+		"preview": "nuxt preview",
+		"type-check": "nuxi typecheck"
+	},
+	"devDependencies": {
+		"nuxt": "3.0.0-rc.1",
+		"@types/js-cookie": "^3.0.2"
+	},
+	"dependencies": {
+		"firebase": "^9.6.11",
+		"js-cookie": "^3.0.1"
+	}
 }
