@@ -7,10 +7,8 @@ const password = ref('');
 const onSubmit = (_e: Event) => {
 	const { $auth } = useNuxtApp();
 	signInWithEmailAndPassword($auth, email.value, password.value)
-		.then((userCredential) => {
-			// Signed in
-			const user = userCredential.user;
-			console.log('WEEEEEEEE', user);
+		.then(() => {
+			navigateTo({ path: '/' });
 		})
 		.catch((error) => {
 			const errorCode = error.code;

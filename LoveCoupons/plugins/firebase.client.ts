@@ -4,30 +4,26 @@ import { getAuth, onAuthStateChanged, browserLocalPersistence } from 'firebase/a
 import Cookies from 'js-cookie';
 
 export default defineNuxtPlugin(() => {
-	const firebaseConfig = {
-		apiKey: 'AIzaSyAjWFfRYca04z0dTHVyP5p-vNfxY4xfk8g',
-		authDomain: 'love-coupons-9177b.firebaseapp.com',
-		projectId: 'love-coupons-9177b',
-		storageBucket: 'love-coupons-9177b.appspot.com',
-		messagingSenderId: '283128359821',
-		appId: '1:283128359821:web:6a5630edb6583828222bc4',
-		measurementId: 'G-ED6BR3VS18',
-	};
+	const config = useRuntimeConfig();
 
 	// Initialize Firebase
-	const app = initializeApp(firebaseConfig);
+	const app = initializeApp(config.public.firebaseConfig);
 	const analytics = getAnalytics(app);
 	const auth = getAuth(app);
 	auth.useDeviceLanguage();
 	// auth.setPersistence();
 	auth.setPersistence(browserLocalPersistence);
+	console.log('User state is unknown');
 	// connectAuthEmulator(auth, 'http://localhost:9099');
-	onAuthStateChanged(auth, async (user) => {
+	const userState = useLoggedState();
+	onAuthStateChanged(auth, (user) => {
 		if (user !== null) {
 			console.log('Logged in', user.toJSON());
+			userState.value = 'loggedIn';
 			// localStorage.setItem('user', JSON.stringify(user.toJSON()));
 			// Cookies.set('auth-token', await user.getIdToken());
 		} else {
+			userState.value = 'loggedOut';
 			// Cookies.remove('auth-token');
 		}
 	});

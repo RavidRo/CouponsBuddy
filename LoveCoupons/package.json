@@ -9,11 +9,12 @@
 		"type-check": "nuxi typecheck"
 	},
 	"devDependencies": {
-		"nuxt": "3.0.0-rc.1",
-		"@types/js-cookie": "^3.0.2"
+		"@types/js-cookie": "^3.0.2",
+		"nuxt": "3.0.0-rc.1"
 	},
 	"dependencies": {
 		"firebase": "^9.6.11",
+		"firebase-admin": "^10.1.0",
 		"js-cookie": "^3.0.1"
 	}
 }

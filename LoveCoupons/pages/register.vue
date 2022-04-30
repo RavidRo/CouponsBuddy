@@ -10,7 +10,7 @@ const onSubmit = (_e: Event) => {
 		.then((userCredential) => {
 			// Signed in
 			const user = userCredential.user;
-			console.log('WEEEEEEEE', user);
+			console.log('Welcome!', user);
 		})
 		.catch((error) => {
 			const errorCode = error.code;

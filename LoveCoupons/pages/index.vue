@@ -1,8 +1,6 @@
 <template>
 	<div>
-		<ClientOnly>
-			<HomeTitle />
-		</ClientOnly>
+		<WelcomeTitle />
 		<ButtonCounter />
 	</div>
 </template>
