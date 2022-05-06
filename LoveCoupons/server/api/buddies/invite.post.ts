@@ -1,26 +1,36 @@
 import { sendError } from 'h3';
 
-import { createConnection } from '~~/server/repositories/buddies';
-import { getUserName, isUserExists } from '~~/server/repositories/users';
+import { isConnected, createConnection } from '~~/server/repositories/buddies';
+import { getUserByEmail, getUserName, isUserExists } from '~~/server/repositories/users';
 import { isMissingArgument, sendUnauthorized } from '~/server/utils';
+import { isString } from '@vue/shared';
 
 export default defineEventHandler(async (event) => {
-	if (!event.context.auth) {
+	const user = event.context.auth;
+	if (!user) {
 		return sendUnauthorized(event);
 	}
 
 	const body = await useBody(event);
-	const error = isMissingArgument(body, 'userid');
+	const error = isMissingArgument(body, 'emailToInvite');
 	if (error) {
 		return sendError(event, error);
 	}
-	const toInviteId: string = body['userid'];
 
-	if (await isUserExists(toInviteId)) {
-		const userNamePromise = getUserName(toInviteId);
-		await createConnection(event.context.auth.uid, toInviteId);
-		return await userNamePromise;
-	} else {
+	const toInviteEmail: any = body['emailToInvite'];
+	if (!isString(toInviteEmail)) {
+		return sendError(
+			event,
+			createError({
+				statusCode: 400,
+				statusMessage: 'emailToInvite must be a string',
+			})
+		);
+	}
+
+	const toInviteId = (await getUserByEmail(toInviteEmail))?.uid;
+
+	if (!toInviteId) {
 		return sendError(
 			event,
 			createError({
@@ -29,4 +39,28 @@ export default defineEventHandler(async (event) => {
 			})
 		);
 	}
+
+	if (toInviteId === user.uid) {
+		return sendError(
+			event,
+			createError({
+				statusCode: 400,
+				statusMessage: "You can't invite yourself ",
+			})
+		);
+	}
+
+	if (await isConnected(toInviteId, user.uid)) {
+		return sendError(
+			event,
+			createError({
+				statusCode: 400,
+				statusMessage: 'Requested user is already your buddy',
+			})
+		);
+	}
+
+	const userNamePromise = getUserName(toInviteId);
+	await createConnection(user.uid, toInviteId);
+	return await userNamePromise;
 });

@@ -1,7 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAnalytics } from 'firebase/analytics';
 import { getAuth, onAuthStateChanged, browserLocalPersistence } from 'firebase/auth';
-import Cookies from 'js-cookie';
 
 export default defineNuxtPlugin(() => {
 	const config = useRuntimeConfig();
@@ -20,11 +19,8 @@ export default defineNuxtPlugin(() => {
 		if (user !== null) {
 			console.log('Logged in', user.toJSON());
 			userState.value = 'loggedIn';
-			// localStorage.setItem('user', JSON.stringify(user.toJSON()));
-			// Cookies.set('auth-token', await user.getIdToken());
 		} else {
 			userState.value = 'loggedOut';
-			// Cookies.remove('auth-token');
 		}
 	});
 

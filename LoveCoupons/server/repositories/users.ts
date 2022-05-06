@@ -1,5 +1,5 @@
 import { getAuth } from 'firebase-admin/auth';
-import { getFirestore } from 'firebase-admin/firestore';
+import { FieldValue, getFirestore } from 'firebase-admin/firestore';
 
 export function isUserExists(uid: string) {
 	return getAuth()
@@ -51,4 +51,27 @@ export async function getConnectionsIDs(userUid: string): Promise<string[]> {
 		createUser(userUid);
 		return [];
 	}
+}
+
+export async function addBuddy(userUid: string, newConnectionID: string): Promise<void> {
+	const db = getFirestore();
+
+	const user = db.collection('Users').doc(userUid);
+	await user.update({
+		buddies: FieldValue.arrayUnion(newConnectionID),
+	});
+}
+
+export async function getUserByEmail(email: string) {
+	return getAuth()
+		.getUserByEmail(email)
+		.catch((error) => {
+			if (error.code === 'auth/user-not-found') {
+				return undefined;
+			}
+			if (error.code === 'auth/invalid-email') {
+				return undefined;
+			}
+			throw error;
+		});
 }

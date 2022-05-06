@@ -11,6 +11,7 @@ const onSubmit = (_e: Event) => {
 			// Signed in
 			const user = userCredential.user;
 			console.log('Welcome!', user);
+			navigateTo({ path: '/' });
 		})
 		.catch((error) => {
 			const errorCode = error.code;
