@@ -4,15 +4,15 @@
 
 ### 1. Account
 
-1. Users can sign-up with phone number or google account.
-2. Users can sign in to their account.
+1.  - Users can sign-up with phone number or google account.
+2.  - Users can sign in to their account.
 
 ### 2. Connection Creation
 
-1. Members can send a connection invitation to other members by their phone number.
+1.  - Members can send a connection invitation to other members by their phone number.
 2. Members can send a link invitation to unregistered users.
-3. Members can receive incoming invitation.
-4. Members can accept or reject incoming invitation.
+3.  - Members can receive incoming invitation.
+4.  - Members can accept or reject incoming invitation.
 5. Members can delete an existing connection of his.
 6. Members can send points to a partner.
 
@@ -25,7 +25,7 @@
 5. Members can set a coupon's rarity in a partner's coupons bank.
 6. Members can set a their partner's random coupon price.
 7. Members can use their points to buy a random coupon from their bank.
-8. Members can send a coupons to a partner from the bank, example coupons or a costume one.
+8.  - Members can send a coupons to a partner from the bank, example coupons or a costume one.
 
 ### 4. Goals
 
@@ -55,8 +55,8 @@
 
 ### 6. Chat
 
-1. Members can send messages to a partner.
-2. Members can send pictures and videos to a partner.
+1.  - Members can send messages to a partner.
+2.  - Members can send pictures and videos to a partner.
 3. Members can send gifs to a partner.
 4. Actions' messages will be sent on the chat.
 

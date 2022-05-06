@@ -1,4 +1,4 @@
-import { getBuddiesNames } from '~~/server/repositories/buddies';
+import { getBuddies } from '~~/server/repositories/buddies';
 import { sendUnauthorized } from '~/server/utils';
 
 export default defineEventHandler(async (event) => {
@@ -6,5 +6,5 @@ export default defineEventHandler(async (event) => {
 		return sendUnauthorized(event);
 	}
 
-	return getBuddiesNames(event.context.auth.uid);
+	return getBuddies(event.context.auth.uid);
 });

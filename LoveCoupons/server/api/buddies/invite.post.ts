@@ -1,7 +1,7 @@
 import { sendError } from 'h3';
 
 import { isConnected, createConnection } from '~~/server/repositories/buddies';
-import { getUserByEmail, getUserName, isUserExists } from '~~/server/repositories/users';
+import { getUserByEmail, getUserName } from '~~/server/repositories/users';
 import { isMissingArgument, sendUnauthorized } from '~/server/utils';
 import { isString } from '@vue/shared';
 
@@ -61,6 +61,7 @@ export default defineEventHandler(async (event) => {
 	}
 
 	const userNamePromise = getUserName(toInviteId);
-	await createConnection(user.uid, toInviteId);
-	return await userNamePromise;
+	const chatID = await createConnection(user.uid, toInviteId);
+	const buddy: Buddy = { name: await userNamePromise, chat: chatID };
+	return buddy;
 });

@@ -1,12 +1,14 @@
 <script setup lang="ts">
-const initialBuddies = await useGet<string[]>('api/buddies');
-const buddies = ref(initialBuddies);
+const { buddies, pending } = useBuddies();
 const emailToInvite = ref('');
 
 const fetch = async () => {
-	usePost<string>('api/buddies/invite', { emailToInvite: emailToInvite.value })
-		.then((res) => buddies.value.push(res))
-		.catch((err) => buddies.value.push(err.data.statusMessage));
+	console.log(buddies.value);
+	usePost<Buddy>('api/buddies/invite', { emailToInvite: emailToInvite.value })
+		.then((res) => {
+			buddies.value.push(res);
+		})
+		.catch((err) => alert(err.data.statusMessage));
 };
 </script>
 
@@ -20,9 +22,10 @@ const fetch = async () => {
 			placeholder="Email"
 		/>
 		<button @click="fetch">Invite!</button>
-		<ul>
+		<h3 v-if="pending">Loading buddies...</h3>
+		<ul v-else>
 			<li v-for="buddy in buddies">
-				{{ buddy }}
+				{{ buddy.name }}
 			</li>
 		</ul>
 	</div>

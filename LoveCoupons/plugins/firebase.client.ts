@@ -1,5 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getAnalytics } from 'firebase/analytics';
+import { getFirestore } from 'firebase/firestore';
+
 import { getAuth, onAuthStateChanged, browserLocalPersistence } from 'firebase/auth';
 
 export default defineNuxtPlugin(() => {
@@ -8,6 +10,8 @@ export default defineNuxtPlugin(() => {
 	// Initialize Firebase
 	const app = initializeApp(config.public.firebaseConfig);
 	const analytics = getAnalytics(app);
+	const firestore = getFirestore(app);
+
 	const auth = getAuth(app);
 	auth.useDeviceLanguage();
 	// auth.setPersistence();
