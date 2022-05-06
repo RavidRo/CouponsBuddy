@@ -1,4 +1,5 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { initializeFirestore } from 'firebase/firestore';
 
 export default defineEventHandler((event) => {
 	const apps = getApps();
