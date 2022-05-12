@@ -16,6 +16,7 @@ const handleSignOut = () => {
 <template>
 	<div>
 		<NuxtLink to="/" class="mr-2">Home</NuxtLink>
+		<NuxtLink to="/home" class="mr-2">New Home</NuxtLink>
 		<NuxtLink to="/testing" class="mr-2">Testing</NuxtLink>
 		<NuxtLink v-show="!isLoggedIn()" to="/login" class="mr-2">Login</NuxtLink>
 		<NuxtLink v-show="!isLoggedIn()" to="/register" class="mr-2">Register</NuxtLink>
