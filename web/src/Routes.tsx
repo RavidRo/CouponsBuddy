@@ -14,13 +14,18 @@ import ExampleCouponsLayout from 'src/layouts/ExampleCouponsLayout'
 const Routes = () => {
   return (
     <Router>
+      {/* <Private unauthenticated={'home'} roles="admin"> */}
       <Set wrap={ExampleCouponsLayout}>
+        <Route path="/coupons" page={() => <div>Hello</div>} name="coupons" />
         <Route path="/example-coupons/new" page={ExampleCouponNewExampleCouponPage} name="newExampleCoupon" />
         <Route path="/example-coupons/{id}/edit" page={ExampleCouponEditExampleCouponPage} name="editExampleCoupon" />
         <Route path="/example-coupons/{id}" page={ExampleCouponExampleCouponPage} name="exampleCoupon" />
         <Route path="/example-coupons" page={ExampleCouponExampleCouponsPage} name="exampleCoupons" />
       </Set>
-      <Route path="/" page={HomePage} name="home" />
+      {/* </Private> */}
+      <Set>
+        <Route path="/" page={HomePage} name="home" />
+      </Set>
       <Route notfound page={NotFoundPage} />
     </Router>
   )
