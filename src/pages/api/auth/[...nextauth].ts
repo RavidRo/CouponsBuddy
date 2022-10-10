@@ -7,32 +7,44 @@ import { env } from "../../../env/server.mjs";
 import { prisma } from "../../../server/db/client";
 
 export const authOptions: NextAuthOptions = {
-  // Include user.id on session
+  debug: env.DEBUG === "true",
   callbacks: {
-    // signIn() {
-    //   return false;
-    // },
+    // Include user.id on session
     session({ session, user }) {
+      console.log("session", session, user);
       if (session.user) {
         session.user.id = user.id;
       }
       return session;
     },
   },
-  pages: {
-    signIn: "/profile",
-    signOut: "/",
-  },
-  // Configure one or more authentication providers
   adapter: PrismaAdapter(prisma),
   providers: [
     DiscordProvider({
       clientId: env.DISCORD_CLIENT_ID,
       clientSecret: env.DISCORD_CLIENT_SECRET,
     }),
-
-    // ...add more providers here
+    // Auth0Provider({
+    //   clientId: env.AUTH0_CLIENT_ID,
+    //   clientSecret: env.AUTH0_CLIENT_SECRET,
+    //   issuer: env.AUTH0_ISSUER,
+    // }),
   ],
 };
 
 export default NextAuth(authOptions);
+
+// Authorization with third-party providers:
+// 1. Sign-in request from server
+
+// Per Provider------------------
+// ClientID:
+// ClientSecret:
+
+// ENV---------------------------
+// NEXTAUTH_URL: canonical URL of your site
+// NEXTAUTH_SECRET: to encrypt the NextAuth.js JWT
+
+// Options-----------------------
+
+// GET/POST /api/auth/callback/:provider: Handles returning requests *from* OAuth services during sign-in.

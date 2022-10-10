@@ -1,9 +1,45 @@
+import { User } from "@prisma/client";
 import { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
+import React from "react";
+
+import { useAuthorize } from "../hooks/useAuthorize";
+import { trpc } from "../utils/trpc";
 
 const Home: NextPage = () => {
-  // const hello = trpc.useQuery(["example.hello", { text: "from tRPC" }]);
+  useAuthorize();
+
+  const friendships = trpc.useQuery(["friends.getAll"]);
+
+  const friends =
+    friendships.isSuccess &&
+    friendships.data
+      .filter((f) => f.status === "ACCEPTED")
+      .map((f) => f.friend);
+
+  const friendRequests =
+    friendships.isSuccess &&
+    friendships.data.filter((f) => f.status === "PENDING").map((f) => f.friend);
+
+  const invite = trpc.useMutation("friends.invite");
+
+  const [invitedID, setInvitedID] = React.useState("");
+  const [invitedFriends, setInvitedFriends] = React.useState<User[]>([]);
+
+  const handleInvite = () => {
+    invite
+      .mutateAsync({ email: invitedID })
+      .then((friendship) => {
+        setInvitedFriends((friends) => [...friends, friendship.invited]);
+      })
+      .catch(() => {});
+  };
+
+  const allFriendRequests = (friendRequests ? friendRequests : []).concat(
+    invitedFriends
+  );
+
   return (
     <>
       <Head>
@@ -12,12 +48,56 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
-        <h1>Profile Page</h1>
+      <main className="container mx-auto mt-36 flex min-h-screen flex-col items-center">
+        <h1 className="mb-20 text-3xl">Profile Page</h1>
+
+        <div
+          id="friends-lists"
+          className="mb-10 flex items-center justify-between gap-12 border-2 border-black"
+        >
+          <div>
+            <h3>Friends:</h3>
+            {friends && (
+              <ul>
+                {friends.map((f) => (
+                  <li key={f.id}>{f.name}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+          <div>
+            <h3>Friend Requests:</h3>
+            {allFriendRequests && (
+              <ul>
+                {allFriendRequests.map((f) => (
+                  <li key={f.id}>{f.name}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+
+        <input
+          type={"text"}
+          placeholder={"Buddy's email..."}
+          autoComplete={"email"}
+          onChange={(e) => setInvitedID(e.target.value)}
+        />
+        <button type={"button"} onClick={handleInvite}>
+          Invite
+        </button>
+
+        {invite.isSuccess ? (
+          <p>Invited!</p>
+        ) : invite.isLoading ? (
+          <p>Loading...</p>
+        ) : invite.error ? (
+          <p>{invite.error.message}</p>
+        ) : null}
 
         <Link href={"/"}>
-          <a href="#" className="text-blue-800 hover:text-blue-600">
-            Home
+          <a href="#" className="mt-10 text-blue-800 hover:text-blue-600">
+            Return to Home
           </a>
         </Link>
       </main>

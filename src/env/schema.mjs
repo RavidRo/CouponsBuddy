@@ -12,9 +12,13 @@ export const serverSchema = z.object({
   NEXTAUTH_URL: z.string().url(),
   DISCORD_CLIENT_ID: z.string(),
   DISCORD_CLIENT_SECRET: z.string(),
+  AUTH0_CLIENT_ID: z.string(),
+  AUTH0_CLIENT_SECRET: z.string(),
+  AUTH0_ISSUER: z.string(),
   POSTGRES_PASSWORD: z.string(),
   POSTGRES_USER: z.string(),
   POSTGRES_DB: z.string(),
+  DEBUG: z.enum(["true", "false"]),
 });
 
 /**

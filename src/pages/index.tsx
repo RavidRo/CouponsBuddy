@@ -43,13 +43,18 @@ const Content = () => {
       </div>
     );
   }
+  if (status === "loading") {
+    return <p>Loading...</p>;
+  }
   return (
-    <button
-      type={"button"}
-      onClick={() => signIn("discord")}
-      className="text-blue-800 hover:text-blue-600"
-    >
-      Login Discord
-    </button>
+    <>
+      <button
+        type={"button"}
+        onClick={() => signIn("discord")}
+        className="text-blue-800 hover:text-blue-600"
+      >
+        Login Discord
+      </button>
+    </>
   );
 };
