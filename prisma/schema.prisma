@@ -24,10 +24,10 @@ model Friendship {
     createdAt DateTime         @default(now())
     updatedAt DateTime         @updatedAt
     status    InvitationStatus @default(PENDING)
-    invited   User             @relation("invited", fields: [user1Id], references: [id])
-    user1Id   String
-    inviter   User             @relation("inviter", fields: [user2Id], references: [id])
-    user2Id   String
+    invited   User             @relation("invited", fields: [invitedId], references: [id])
+    invitedId String
+    inviter   User             @relation("inviter", fields: [inviterId], references: [id])
+    inviterId String
 }
 
 // Necessary for Next auth
