@@ -10,30 +10,6 @@ export type Friendship = PrismaFriendship & {
 	invited: User;
 };
 
-// export type Friendship = {
-//   id: PrismaFriendship["id"];
-//   status: PrismaFriendship["status"];
-//   friend: User;
-// };
-
-// const prismaToFriendship = (
-//   prismaFriendship: PrismaFriendship & {
-//     inviter: User;
-//     invited: User;
-//   },
-//   myId: string
-// ): Friendship => {
-//   const friend =
-//     prismaFriendship.invitedId === myId
-//       ? prismaFriendship.inviter
-//       : prismaFriendship.invited;
-//   return {
-//     id: prismaFriendship.id,
-//     status: prismaFriendship.status,
-//     friend,
-//   };
-// };
-
 export async function accept(
 	prisma: PrismaClient,
 	userID: string,
@@ -72,14 +48,13 @@ export async function accept(
 			status: "ACCEPTED",
 		},
 	});
-	// .then((f) => prismaToFriendship(f, userID));
 }
 
 export async function invite(
 	prisma: PrismaClient,
 	userID: string,
 	email: string
-): Promise<Friendship> {
+): Promise<{ friendship: Friendship; created: boolean }> {
 	const friend = await prisma.user.findUnique({
 		where: {
 			email,
@@ -89,7 +64,7 @@ export async function invite(
 	if (friend === null) {
 		throw new TRPCError({
 			code: "BAD_REQUEST",
-			message: "Invited used does not exist",
+			message: "Invited user does not exist",
 		});
 	}
 
@@ -109,22 +84,19 @@ export async function invite(
 		where: {
 			OR: [
 				{
-					invited: {
-						id: userID,
-					},
+					invitedId: userID,
+					inviterId: friend.id,
 				},
 				{
-					inviter: {
-						id: userID,
-					},
+					invitedId: friend.id,
+					inviterId: userID,
 				},
 			],
 		},
 	});
 
 	if (friendship !== null) {
-		// return prismaToFriendship(friendship, userID);
-		return friendship;
+		return { friendship, created: false };
 	}
 
 	const newFriendship = await prisma.friendship.create({
@@ -138,11 +110,10 @@ export async function invite(
 		},
 	});
 
-	// return prismaToFriendship(newFriendship, userID);
-	return newFriendship;
+	return { friendship: newFriendship, created: true };
 }
 
-export async function getFriendRequests(
+export async function getFriendships(
 	prisma: PrismaClient,
 	userID: string
 ): Promise<Friendship[]> {
@@ -151,47 +122,13 @@ export async function getFriendRequests(
 			inviter: true,
 			invited: true,
 		},
-		// Getting all the *accepted* friend requests where the use is the inviter/invited
-		where: {
-			AND: [
-				{
-					invited: {
-						id: userID,
-					},
-					status: "PENDING",
-				},
-			],
-		},
-	});
-	return friendRequests;
-	// .map((friendship) => {
-	// 	return {
-	// 		id: friendship.id,
-	// 		status: friendship.status,
-	// 		friend: friendship.inviter,
-	// 	};
-	// });
-}
-
-export async function getFriends(
-	prisma: PrismaClient,
-	userID: string
-): Promise<Friendship[]> {
-	const friendRequests = await prisma.friendship.findMany({
-		include: {
-			inviter: true,
-			invited: true,
-		},
-		// Getting all the *accepted* friend requests where the use is the inviter/invited
 		where: {
 			AND: [
 				{
 					OR: [{ invitedId: userID }, { inviterId: userID }],
-					status: "ACCEPTED",
 				},
 			],
 		},
 	});
 	return friendRequests;
-	// .map((f) => prismaToFriendship(f, userID));
 }

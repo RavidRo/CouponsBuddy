@@ -1,35 +1,9 @@
 import { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import { useState } from "react";
-
-import { useAuthorizedSession } from "../hooks/useAuthorizedSession";
-import { useFriends, useFriendsRequests } from "../hooks/useFriends";
-import { trpc } from "../utils/trpc";
+import { FriendsLayout } from "../components/layouts/FriendsLayout";
 
 const Home: NextPage = () => {
-	const { data: sessionData } = useAuthorizedSession();
-	useFriends();
-
-	const invite = trpc.useMutation("friends.invite");
-	const accept = trpc.useMutation("friends.accept");
-
-	const friends = useFriends();
-	const friendRequests = useFriendsRequests();
-
-	const [invitedEmail, setInvitedID] = useState("");
-
-	const handleInvite = async () => {
-		try {
-			const f = await invite.mutateAsync({ email: invitedEmail });
-			if (f.invitedId === sessionData?.user?.id) {
-				accept.mutateAsync({ friendshipID: f.id });
-			}
-		} finally {
-			setInvitedID("");
-		}
-	};
-
 	return (
 		<>
 			<Head>
@@ -38,59 +12,16 @@ const Home: NextPage = () => {
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
 
-			<main className="container mx-auto mt-36 flex min-h-screen flex-col items-center">
-				<h1 className="mb-20 text-3xl">Profile Page</h1>
+			<main className="container relative mx-auto flex h-screen border-2 border-black">
+				<FriendsLayout>
+					<h1 className="mb-20 text-3xl">Profile Page</h1>
 
-				<div
-					id="friends-lists"
-					className="mb-10 flex items-center justify-between gap-12 border-2 border-black"
-				>
-					<div>
-						<h3>Friends:</h3>
-						{friends && (
-							<ul>
-								{friends.map((f) => (
-									<li key={f.friend.id}>{f.friend.name}</li>
-								))}
-							</ul>
-						)}
-					</div>
-					<div>
-						<h3>Friend Requests:</h3>
-						{friendRequests && (
-							<ul>
-								{friendRequests.map((f) => (
-									<li key={f.friend.id}>{f.friend.name} </li>
-								))}
-							</ul>
-						)}
-					</div>
-				</div>
-
-				<input
-					type={"text"}
-					placeholder={"Buddy's email..."}
-					autoComplete={"email"}
-					value={invitedEmail}
-					onChange={(e) => setInvitedID(e.target.value)}
-				/>
-				<button type={"button"} onClick={handleInvite}>
-					Invite
-				</button>
-
-				{invite.isSuccess ? (
-					<p>Invited!</p>
-				) : invite.isLoading ? (
-					<p>Loading...</p>
-				) : invite.error ? (
-					<p>{invite.error.message}</p>
-				) : null}
-
-				<Link href={"/"}>
-					<a href="#" className="mt-10 text-blue-800 hover:text-blue-600">
-						Return to Home
-					</a>
-				</Link>
+					<Link href={"/"}>
+						<a href="#" className="mt-10 text-blue-800 hover:text-blue-600">
+							Return to Home
+						</a>
+					</Link>
+				</FriendsLayout>
 			</main>
 		</>
 	);

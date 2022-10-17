@@ -4,8 +4,7 @@ import { z } from "zod";
 import { Events } from "../../constants/events";
 import {
 	accept,
-	getFriendRequests,
-	getFriends,
+	getFriendships,
 	invite,
 	type Friendship,
 } from "../db/repositories/friends";
@@ -17,9 +16,11 @@ export const friendsRouter = createProtectedRouter()
 			email: z.string(),
 		}),
 		async resolve({ ctx, input }) {
-			const f = await invite(ctx.prisma, ctx.session.user.id, input.email);
-			ctx.ee.emit(Events.INVITE, f);
-			return f;
+			const result = await invite(ctx.prisma, ctx.session.user.id, input.email);
+			if (result.created) {
+				ctx.ee.emit(Events.INVITE, result.friendship);
+			}
+			return result.friendship;
 		},
 	})
 	.mutation("accept", {
@@ -36,34 +37,10 @@ export const friendsRouter = createProtectedRouter()
 			return f;
 		},
 	})
-	.query("getFriendRequests", {
-		resolve: ({ ctx }) => getFriendRequests(ctx.prisma, ctx.session.user.id),
+	.query("getFriendships", {
+		resolve: ({ ctx }) => getFriendships(ctx.prisma, ctx.session.user.id),
 	})
-	.query("getFriends", {
-		resolve: ({ ctx }) => getFriends(ctx.prisma, ctx.session.user.id),
-	})
-	.subscription("subscribeFriendRequests", {
-		resolve({ ctx }) {
-			return new Subscription<Friendship>((emit) => {
-				const onInvite = async (friendship: Friendship) => {
-					if (
-						[friendship.invitedId, friendship.inviterId].includes(
-							ctx.session.user.id
-						)
-					) {
-						emit.data(friendship);
-					}
-				};
-
-				ctx.ee.on(Events.INVITE, onInvite);
-
-				return () => {
-					ctx.ee.off(Events.INVITE, onInvite);
-				};
-			});
-		},
-	})
-	.subscription("subscribeFriends", {
+	.subscription("subscribeFriendships", {
 		resolve({ ctx }) {
 			return new Subscription<Friendship>((emit) => {
 				const onAccept = async (friendship: Friendship) => {
@@ -76,10 +53,22 @@ export const friendsRouter = createProtectedRouter()
 					}
 				};
 
+				const onInvite = async (friendship: Friendship) => {
+					if (
+						[friendship.invitedId, friendship.inviterId].includes(
+							ctx.session.user.id
+						)
+					) {
+						emit.data(friendship);
+					}
+				};
+
+				ctx.ee.on(Events.INVITE, onInvite);
 				ctx.ee.on(Events.ACCEPT, onAccept);
 
 				return () => {
 					ctx.ee.off(Events.ACCEPT, onAccept);
+					ctx.ee.off(Events.INVITE, onInvite);
 				};
 			});
 		},
