@@ -9,9 +9,9 @@ export const Friends: FC = () => {
 		useFriendships();
 
 	return (
-		<div className="h-full w-56 bg-gray-300">
+		<div className="h-full w-56 bg-gray-50 shadow-lg">
 			<ProfileCard />
-			<FriendsList friends={friends} title="Buddies" />
+			<FriendsList friends={friends} />
 			<FriendsList friends={friendsToAccept} title="Invites" />
 			<FriendsList
 				friends={friendsWaitingForAcceptance}
@@ -24,7 +24,7 @@ export const Friends: FC = () => {
 
 interface FriendsListProps {
 	friends: Friendship[];
-	title: string;
+	title?: string;
 	waitingForResponse?: boolean;
 }
 
@@ -34,9 +34,11 @@ const FriendsList: FC<FriendsListProps> = ({
 }) => {
 	return (
 		<>
-			<div hidden={props.friends.length === 0} className="bg-gray-400 p-1">
-				<h5 className="text-sm font-medium">{props.title}</h5>
-			</div>
+			{props.title && (
+				<div hidden={props.friends.length === 0} className="bg-gray-200 p-1">
+					<h5 className="text-xs font-medium">{props.title}</h5>
+				</div>
+			)}
 
 			{props.friends.map((f) => (
 				<FriendCard

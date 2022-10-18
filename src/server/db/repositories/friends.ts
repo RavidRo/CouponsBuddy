@@ -1,5 +1,6 @@
 import {
 	Friendship as PrismaFriendship,
+	Prisma,
 	PrismaClient,
 	User,
 } from "@prisma/client";
@@ -99,19 +100,43 @@ export async function invite(
 		return { friendship, created: false };
 	}
 
-	const newFriendship = await prisma.friendship.create({
+	const newFriendship = await createFriendship(prisma, {
+		invitedId: friend.id,
+		inviterId: userID,
+	});
+
+	return { friendship: newFriendship, created: true };
+}
+
+const createFriendship = async (
+	prisma: PrismaClient,
+	input: { invitedId: string; inviterId: string }
+): Promise<Friendship> => {
+	const { invitedId, inviterId } = input;
+	const idToBank = (
+		id: string
+	): Prisma.ResourcesCreateWithoutFriendshipInput => {
+		return {
+			couponBank: {
+				create: {},
+			},
+			user: { connect: { id } },
+		};
+	};
+	return await prisma.friendship.create({
 		include: {
 			invited: true,
 			inviter: true,
 		},
 		data: {
-			invitedId: friend.id,
-			inviterId: userID,
+			invitedId,
+			inviterId,
+			resources: {
+				create: [idToBank(invitedId), idToBank(inviterId)],
+			},
 		},
 	});
-
-	return { friendship: newFriendship, created: true };
-}
+};
 
 export async function getFriendships(
 	prisma: PrismaClient,

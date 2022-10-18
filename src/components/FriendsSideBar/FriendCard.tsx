@@ -1,7 +1,8 @@
-import { FC } from "react";
+import { FC, useContext } from "react";
 
 import { trpc } from "../../utils/trpc";
 
+import { ActiveFriendContext, SetActiveFriendContext } from "../../contexts";
 import type { Friendship } from "../../hooks/useFriends";
 import { ProfilePicture } from "../ProfilePicture";
 
@@ -16,8 +17,10 @@ export const FriendCard: FC<FriendProps> = (props) => {
 
 	const accept = trpc.useMutation("friends.accept");
 
+	const areFriends = friendship.status === "ACCEPTED";
+
 	const Description = () => {
-		if (friendship.status === "ACCEPTED") {
+		if (areFriends) {
 			return <p>No Coupons</p>;
 		}
 		if (friendship.status === "PENDING" && props.waitingForResponse) {
@@ -38,8 +41,21 @@ export const FriendCard: FC<FriendProps> = (props) => {
 		);
 	};
 
+	const activeFriend = useContext(ActiveFriendContext);
+	const setActiveFriend = useContext(SetActiveFriendContext);
+	const handleSelection = () => {
+		if (areFriends) {
+			setActiveFriend(friend.id);
+		}
+	};
+
 	return (
-		<div className="p-1">
+		<div
+			className={`p-1 ${
+				areFriends ? "cursor-pointer transition-colors hover:bg-gray-100" : ""
+			} ${activeFriend === friend.id ? "bg-gray-100" : ""}`}
+			onClick={handleSelection}
+		>
 			<div className="flex h-12 flex-row gap-5">
 				<div className="relative w-12 flex-shrink-0">
 					<div className="relative h-full w-full">

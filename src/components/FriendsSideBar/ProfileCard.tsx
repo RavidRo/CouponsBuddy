@@ -20,7 +20,7 @@ export const ProfileCard: FC = () => {
 	}
 
 	return (
-		<div>
+		<div className="bg-gray-200">
 			<div className="flex flex-row items-center justify-between p-1 pr-4">
 				<span className="h-10 w-10">
 					<ProfilePicture image={data?.user?.image} />
