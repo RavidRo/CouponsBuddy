@@ -1,7 +1,7 @@
 import type { FC } from "react";
 
 import { Friendship, useFriendships } from "../../hooks/useFriends";
-import { FriendCard } from "./FirendCard";
+import { FriendCard } from "./FriendCard";
 import { ProfileCard } from "./ProfileCard";
 
 export const Friends: FC = () => {
@@ -35,7 +35,7 @@ const FriendsList: FC<FriendsListProps> = ({
 	return (
 		<>
 			<div hidden={props.friends.length === 0} className="bg-gray-400 p-1">
-				<h5>{props.title}</h5>
+				<h5 className="text-sm font-medium">{props.title}</h5>
 			</div>
 
 			{props.friends.map((f) => (
