@@ -1,9 +1,9 @@
 import { FC } from "react";
 
-import { trpc } from "../utils/trpc";
+import { trpc } from "../../utils/trpc";
 
-import type { Friendship } from "../hooks/useFriends";
-import { ProfilePicture } from "./ProfilePicture";
+import type { Friendship } from "../../hooks/useFriends";
+import { ProfilePicture } from "../ProfilePicture";
 
 interface FriendProps {
 	friendship: Friendship;
@@ -40,15 +40,17 @@ export const FriendCard: FC<FriendProps> = (props) => {
 
 	return (
 		<div className="p-1">
-			<div className="flex h-14 flex-row gap-5">
-				<div className="relative w-14 flex-shrink-0">
+			<div className="flex h-12 flex-row gap-5">
+				<div className="relative w-12 flex-shrink-0">
 					<div className="relative h-full w-full">
 						<ProfilePicture image={friend.image} />
 					</div>
 				</div>
 				<div>
 					<h6>{friend.name}</h6>
-					<Description />
+					<span className="text-xs">
+						<Description />
+					</span>
 				</div>
 			</div>
 		</div>

@@ -1,11 +1,11 @@
 import { FC, useState } from "react";
 import { Send, UserPlus } from "react-feather";
 
-import { trpc } from "../utils/trpc";
+import { trpc } from "../../utils/trpc";
 
-import { useAuthorizedSession } from "../hooks/useAuthorizedSession";
-import { IconButton } from "./IconButton";
-import { ProfilePicture } from "./ProfilePicture";
+import { useAuthorizedSession } from "../../hooks/useAuthorizedSession";
+import { IconButton } from "../IconButton";
+import { ProfilePicture } from "../ProfilePicture";
 
 export const ProfileCard: FC = () => {
 	const { data, status } = useAuthorizedSession();
@@ -31,7 +31,7 @@ export const ProfileCard: FC = () => {
 			</div>
 			<div
 				className={
-					"overflow-hidden transition-all " + (inviting ? "h-0" : "h-14")
+					"overflow-hidden transition-all " + (inviting ? "h-14" : "h-0")
 				}
 			>
 				<InviteSection myId={data.user.id} />

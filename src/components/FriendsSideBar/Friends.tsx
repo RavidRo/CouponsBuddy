@@ -1,6 +1,6 @@
 import type { FC } from "react";
 
-import { Friendship, useFriendships } from "../hooks/useFriends";
+import { Friendship, useFriendships } from "../../hooks/useFriends";
 import { FriendCard } from "./FirendCard";
 import { ProfileCard } from "./ProfileCard";
 

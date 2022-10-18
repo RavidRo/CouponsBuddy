@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { Friends } from "../Friends";
+import { Friends } from "./Friends";
 
 interface Props {
 	children: React.ReactNode;
