@@ -2,77 +2,126 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    // NOTE: When using postgresql, mysql or sqlserver, uncomment the @db.text annotations in model Account below
-    // Further reading: 
-    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  // NOTE: When using postgresql, mysql or sqlserver, uncomment the @db.text annotations in model Account below
+  // Further reading: 
+  // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
+  // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
+  url      = env("DATABASE_URL")
 }
 
 enum InvitationStatus {
-    PENDING
-    ACCEPTED
+  PENDING
+  ACCEPTED
+}
+
+model Message {
+  id           String     @id @default(cuid())
+  createdAt    DateTime   @default(now())
+  author       User       @relation(fields: [authorId], references: [id])
+  authorId     String
+  friendship   Friendship @relation(fields: [friendshipId], references: [id])
+  friendshipId String
+  content      String
+}
+
+model Resources {
+  id           String     @id @default(cuid())
+  friendship   Friendship @relation(fields: [friendshipId], references: [id])
+  friendshipId String
+  user         User       @relation(fields: [userId], references: [id])
+  userId       String
+  couponBank   CouponBank @relation(fields: [couponBankId], references: [id])
+  couponBankId String
+  lastViewd    LastViewd?
+
+  @@unique([friendshipId, userId])
+}
+
+model LastViewd {
+  resources   Resources @relation(fields: [resourcesId], references: [id])
+  resourcesId String    @id
+  coupons     DateTime  @default(now())
+  chat        DateTime  @default(now())
+}
+
+model CouponBank {
+  id        String      @id @default(cuid())
+  name      String?
+  public    Boolean     @default(false)
+  coupons   Coupon[]
+  resources Resources[]
+}
+
+model Coupon {
+  id         String      @id @default(cuid())
+  content    String
+  couponBank CouponBank? @relation(fields: [bankId], references: [id])
+  bankId     String?
 }
 
 model Friendship {
-    id        String           @id @default(cuid())
-    createdAt DateTime         @default(now())
-    updatedAt DateTime         @updatedAt
-    status    InvitationStatus @default(PENDING)
-    invited   User             @relation("invited", fields: [invitedId], references: [id])
-    invitedId String
-    inviter   User             @relation("inviter", fields: [inviterId], references: [id])
-    inviterId String
+  id        String           @id @default(cuid())
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  status    InvitationStatus @default(PENDING)
+  invited   User             @relation("invited", fields: [invitedId], references: [id])
+  invitedId String
+  inviter   User             @relation("inviter", fields: [inviterId], references: [id])
+  inviterId String
+  messages  Message[]
+  resources Resources[]
 }
 
 // Necessary for Next auth
 model Account {
-    id                String  @id @default(cuid())
-    userId            String
-    type              String
-    provider          String
-    providerAccountId String
-    refresh_token     String? @db.Text
-    access_token      String? @db.Text
-    expires_at        Int?
-    token_type        String?
-    scope             String?
-    id_token          String? @db.Text
-    session_state     String?
-    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@unique([provider, providerAccountId])
+  @@unique([provider, providerAccountId])
 }
 
 model Session {
-    id           String   @id @default(cuid())
-    sessionToken String   @unique
-    userId       String
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-    id              String       @id @default(cuid())
-    name            String?
-    email           String?      @unique
-    emailVerified   DateTime?
-    image           String?
-    accounts        Account[]
-    sessions        Session[]
-    friendRequests  Friendship[] @relation("invited")
-    friendRequested Friendship[] @relation("inviter")
+  id              String       @id @default(cuid())
+  name            String?
+  email           String?      @unique
+  emailVerified   DateTime?
+  image           String?
+  accounts        Account[]
+  sessions        Session[]
+  friendRequests  Friendship[] @relation("invited")
+  friendRequested Friendship[] @relation("inviter")
+  messages        Message[]
+  resources       Resources[]
 }
 
 model VerificationToken {
-    identifier String
-    token      String   @unique
-    expires    DateTime
+  identifier String
+  token      String   @unique
+  expires    DateTime
 
-    @@unique([identifier, token])
+  @@unique([identifier, token])
 }
