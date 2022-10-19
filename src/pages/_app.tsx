@@ -9,6 +9,7 @@ import { SessionProvider } from "next-auth/react";
 import type { AppType } from "next/app";
 import superjson from "superjson";
 import { Layout } from "../components/Layout";
+import { env } from "../env/server";
 import type { AppRouter } from "../server/router";
 import "../styles/globals.css";
 
@@ -34,7 +35,7 @@ const getBaseUrl = () => {
 	if (typeof window !== "undefined") return ""; // browser should use relative url
 	const domain = getDomainName();
 	if (process.env.VERCEL_URL) return `https://${domain}`; // SSR should use vercel url
-	return `http://${domain}:${process.env.PORT ?? 3000}`; // dev SSR should use localhost
+	return `http://${domain}:${env.PORT}`; // dev SSR should use localhost
 };
 
 function getEndingLink() {
@@ -44,7 +45,7 @@ function getEndingLink() {
 		return httpBatchLink({ url });
 	}
 	const client = createWSClient({
-		url: `ws://${getDomainName()}:3001`,
+		url: `ws://${getDomainName()}:${env.DEV_WSS_PORT}`,
 	});
 	return wsLink<AppRouter>({ client });
 }

@@ -7,7 +7,7 @@ import { env } from "../../../env/server";
 import { prisma } from "../../../server/db/client";
 
 export const authOptions: NextAuthOptions = {
-	debug: env.NEXTAUTH_DEBUG === "true",
+	debug: env.NODE_ENV === "development" && env.NEXTAUTH_DEBUG === "true",
 	callbacks: {
 		// Include user.id on session
 		session({ session, user }) {

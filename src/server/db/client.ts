@@ -16,8 +16,9 @@ const logLevels: Record<LogLevel, LogLevel[]> = {
 	error: logLevelsList.slice(3),
 };
 
+const logLevel = env.NODE_ENV === "production" ? "error" : env.PRISMA_LOG_LEVEL;
 export const prisma =
-	global.prisma || new PrismaClient({ log: logLevels[env.PRISMA_LOG_LEVEL] });
+	global.prisma || new PrismaClient({ log: logLevels[logLevel] });
 
 if (env.NODE_ENV !== "production") {
 	global.prisma = prisma;
