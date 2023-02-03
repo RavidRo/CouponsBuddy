@@ -10,11 +10,11 @@
 ### 2. Connection Creation
 
 1.  - Members can send a connection invitation to other members by their phone number.
-2. Members can send a link invitation to unregistered users.
+2.  Members can send a link invitation to unregistered users.
 3.  - Members can receive incoming invitation.
 4.  - Members can accept or reject incoming invitation.
-5. Members can delete an existing connection of his.
-6. Members can send points to a partner.
+5.  Members can delete an existing connection of his.
+6.  Members can send points to a partner.
 
 ### 3. Coupons:
 
@@ -25,7 +25,7 @@
 5. Members can set a coupon's rarity in a partner's coupons bank.
 6. Members can set a their partner's random coupon price.
 7. Members can use their points to buy a random coupon from their bank.
-8.  - Members can send a coupons to a partner from the bank, example coupons or a costume one.
+8. - Members can send a coupons to a partner from the bank, example coupons or a costume one.
 
 ### 4. Goals
 
@@ -44,11 +44,11 @@
 2. Members can set an action's points award or a partner.
 3. Members can set a partner's actions timer.
 4. Members can perform one of the following actions:
-    1. Send an heart.
-    2. Send a message.
-    3. Send a picture.
-    4. Send a video.
-    5. Send a coupon.
+   1. Send an heart.
+   2. Send a message.
+   3. Send a picture.
+   4. Send a video.
+   5. Send a coupon.
 5. Members will be able to perform an action for a partner when their timer is not on.
 6. Members will earn points after performing an action successfully.
 7. Member's connection timer will reset after successfully performing an action.
@@ -57,8 +57,8 @@
 
 1.  - Members can send messages to a partner.
 2.  - Members can send pictures and videos to a partner.
-3. Members can send gifs to a partner.
-4. Actions' messages will be sent on the chat.
+3.  Members can send gifs to a partner.
+4.  Actions' messages will be sent on the chat.
 
 ### 7. Notification
 
@@ -79,3 +79,42 @@
 1. Sharing coupons and goals.
 2. Create a community coupons and goals bank.
 3. Block other members from sending invitations.
+
+# MVP
+
+## Requirements
+
+- Members can create connection with other members.
+- Members can view their coupons.
+- Members can send coupons to their connections.
+- Members can chat with their connections. (Text only)
+- Chat should be updated in realtime.
+- Coupons can be updated on refresh.
+- Email + Password authentication.
+
+## Visual
+
+### Connections screen
+
+- Button to create a new connection.
+- List of connections to go to.
+
+### Buddy screen
+
+- Navigation on bottom with:
+  - Chat - Opens a what's app like chat.
+  - Send coupon - Opens a form to send a coupon.
+  - Your coupons - Basic list with all your coupons.
+
+### Authentication Screen
+
+- Basic email and password authentication
+
+### Tech
+
+Dart + Firebase:  
+These should work good together(Both from google) and maximum simplicity and scalable.
+
+Realtime database for the chat.  
+Firestore for the coupons.  
+Authentication with email and password provided.
