@@ -118,3 +118,15 @@ These should work good together(Both from google) and maximum simplicity and sca
 Realtime database for the chat.  
 Firestore for the coupons.  
 Authentication with email and password provided.
+
+### Plan
+
+1. UI viewing coupons
+2. UI for sending coupons
+3. UI for authentication
+4. UI for sending connection requests
+5. Authentication logic
+6. Connection logic
+7. Coupons logic
+8. Chat UI
+9. Chat Logic
